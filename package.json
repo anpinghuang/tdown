@@ -1,0 +1,27 @@
+{
+  "name": "ytdown",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.6.5",
+    "body-parser": "^1.20.2",
+    "cheerio": "^1.0.0-rc.12",
+    "content-disposition": "^0.5.4",
+    "downloadjs": "^1.4.7",
+    "express": "^4.18.2",
+    "https": "^1.0.0",
+    "progress": "^2.0.3",
+    "pump": "^3.0.0",
+    "puppeteer": "^21.7.0",
+    "stream": "^0.0.2",
+    "tailwindcss": "^3.4.1",
+    "util": "^0.12.5"
+  }
+}

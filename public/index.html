@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Video Downloader</title>
+    <link href="/output.css" rel="stylesheet">
+</head>
+
+
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+    <div class="w-full max-w-xs">
+        <a href="/"><img class="h-auto max-w-lg rounded-lg" src="tdown.png" alt="image description"></a>
+        <form id="downloadForm" class="max-w-sm mx-auto bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            <div class="mb-4">
+                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="videoUrl">
+                    Video URL
+                </label>
+                <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="text" id="videoUrl" name="videoUrl" placeholder="Enter video URL" required>
+            </div>
+            <div class="m-4">
+                <button type="button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" id="showFormats" >Get Formats</button>
+                <select id="formats" style="display: none;" class="mb-4 block w-full px-4 py-3 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"></select>
+                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" style="display: none;">Download</button>
+            </div>
+        </form>
+    </div>
+        
+
+    <script>
+        function formatFileSize(bytes) {
+        if (bytes < 1024) {
+            return bytes + ' B';
+        } else if (bytes < 1024 * 1024) {
+            return (bytes / 1024).toFixed(2) + ' KB';
+        } else if (bytes < 1024 * 1024 * 1024) {
+            return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+        } else {
+            return (bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
+        }
+        }
+        document.getElementById('showFormats').addEventListener('click', function() {
+    const videoUrl = document.getElementById('videoUrl').value;
+    console.log("VIDEO URL IS ",videoUrl);
+    fetch('/formats', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `videoUrl=${encodeURIComponent(videoUrl)}`
+    })
+    .then(response => response.json())
+    .then(formats => {
+        console.log(formats);
+        const select = document.getElementById('formats');
+        select.style.display = '';
+        select.innerHTML = '';
+        formats.forEach((format, index) => {
+            const option = document.createElement('option');
+            option.value = format.itag;
+            option.textContent = `Quality: ${format.qualityLabel}, ${formatFileSize(format.contentLength)}, ${format.mimeType}`;
+            console.log(option.textContent);
+            select.appendChild(option);
+        });
+        document.querySelector('#downloadForm button[type="submit"]').style.display = '';
+        document.getElementById("videoUrl").style.display = "none";
+        document.getElementById("showFormats").style.display = "none";
+    })
+    .catch(error => console.error('Error:', error));
+});
+///////////////////////
+
+
+document.getElementById('downloadForm').addEventListener('submit', async function(event) {
+      event.preventDefault();
+      const url = document.getElementById('videoUrl').value;
+      const formatIndex = document.getElementById('formats').value;
+      window.location.href = `/download?url=${encodeURIComponent(url)}&formatIndex=${formatIndex}`;
+    });
+
+// function downloadVideo(videoUrl) {
+//       var videoUrl = document.getElementById('videoUrl').value;
+//       var video = document.createElement('video');
+      
+//       video.src = videoUrl;
+//       video.controls = true;
+//       video.preload = 'metadata'; // Preload metadata to get video duration and size
+      
+//       video.addEventListener('loadedmetadata', function() {
+//         var a = document.createElement('a');
+//         a.href = videoUrl;
+//         a.download = 'video.mp4';
+//         document.body.appendChild(a);
+//         a.click();
+//         document.body.removeChild(a);
+//       });
+      
+//       document.body.appendChild(video);
+//     }
+
+
+        // document.getElementById('downloadForm').addEventListener('submit', function(event) {
+        //     event.preventDefault();
+        //     const videoUrl = document.getElementById('videoUrl').value;
+        //     const formatIndex = document.getElementById('formats').value;
+
+
+        //     fetch('/download', {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/x-www-form-urlencoded',
+        //         },
+        //         body: `videoUrl=${encodeURIComponent(videoUrl)}&formatIndex=${encodeURIComponent(formatIndex)}`
+        //     })
+        //     .then(response => {
+        //         if (!response.ok) {
+        //             throw new Error('Network response was not ok');
+        //         }
+        //         console.log("THIS IS THE RESPONSE!!!!!",response.json());
+        //         return response.json(); // Parse the JSON response
+        //     })
+        //     .then(data => {
+        //         console.log("THIS IS THE ACTTUAL RESPONSE!!",data.downloadUrl);
+        //     })
+
+
+            //     fetch(data.url, { mode: 'no-cors' })
+            //     .then(response => {
+            //         if (response.ok) {
+            //             return response.blob();
+            //         } else {
+            //             throw new Error('Network response was not ok');
+            //         }
+            //     })
+            //     .then(blob => {
+            //         const urlCreator = window.URL || window.webkitURL;
+            //         const videoUrl = urlCreator.createObjectURL(blob);
+            //         const a = document.createElement('a');
+            //         a.href = videoUrl;
+            //         a.target = '_blank';
+            //         a.download = 'video.mp4';
+            //         document.body.appendChild(a);
+            //         a.click();
+            //         document.body.removeChild(a);
+            //     })
+            //     .catch(error => {
+            //         console.error('Error:', error);
+            //         alert('Failed to download video: ' + error.message);
+            //     });
+            // })
+            // .then(({ blob, filename }) => {
+            //     const url = window.URL.createObjectURL(blob);
+            //     const a = document.createElement('a');
+            //     a.style.display = 'none';
+            //     a.href = url;
+            //     // Use the response header to get the suggested filename
+            //     a.download = filename; // Use the filename from the server
+            //     document.body.appendChild(a);
+            //     a.click();
+            //     window.URL.revokeObjectURL(url);
+            // })
+        //     .catch(error => console.error('Error:', error));
+        // });
+    </script>
+
+    <!-- Your existing script here -->
+</body>
+</html>
