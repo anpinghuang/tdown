@@ -157,8 +157,7 @@ app.get('/download', async (req, res) => {
                                 // wss.clients.forEach(client => {
                                 //     client.send(JSON.stringify({ progress: 100, complete: true }));
                                 // });
-                                downloadSessions.get(sessionId).complete = true;
-                                updateProgress(sessionId);
+                                //updateProgress(sessionId);
 
                                 resolve(Buffer.concat(chunks));
                             });
@@ -179,6 +178,8 @@ app.get('/download', async (req, res) => {
 
                     // Stream the entire video buffer to the response
                     res.end(videoBuffer);
+                    downloadSessions.get(sessionId).complete = true;
+
                 })
                 .catch((err) => {
                     console.error('Error downloading chunks:', err);

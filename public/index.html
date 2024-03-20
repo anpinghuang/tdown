@@ -49,7 +49,7 @@
                     </div>
                 </div>
             </div>
-            <button type="submit" class="bg-blue-500 text-white px-6 py-3 text-lg rounded-r-md border border-blue-500 hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-400" style="display: none;">Download</button>
+            <button id="submitbutton" type="submit" class="bg-blue-500 text-white px-6 py-3 text-lg rounded-r-md border border-blue-500 hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-400" style="display: none;">Download</button>
             <div id="error-message" style="color: red;"></div>
 
 
@@ -301,6 +301,7 @@ function createProgressElements(sessionId) {
         function initiateDownload(sessionId) {
             console.log("INITIATE DOWNLOAD CALLED!!!");
             createProgressElements(sessionId);
+
             // get current url
             const webSocketUrl = getWebSocketUrl();           
             
@@ -312,9 +313,9 @@ function createProgressElements(sessionId) {
             };
 
             downloadWs.onmessage = (event) => {
-                console.log("DOWNLOADWS FINALLY OPENED");
+                //console.log("DOWNLOADWS FINALLY OPENED");
                         const data = JSON.parse(event.data);
-                        console.log("SESSION ID FROM INITIATEODWNLOAD IS",sessionId);
+                        //console.log("SESSION ID FROM INITIATEODWNLOAD IS",sessionId);
                 
                         if (sessionId === undefined && data.sessionId !== undefined) {
                             sessionId = data.sessionId;
@@ -330,10 +331,9 @@ function createProgressElements(sessionId) {
                                 document.getElementById(`progressContainer-${sessionId}`).style.display = 'block';
 
                                 document.getElementById(`status-${sessionId}`).textContent = 'Downloading...';
-                            if (data.complete) {
+                            if (data.complete == true) {
                                 document.getElementById(`status-${sessionId}`).textContent = 'FINISHED!!';
-                                //document.getElementById(`status`).textContent = 'Download complete!';
-                                ws.close();
+                                downloadWs.close();
                             }
                         }
                     }
@@ -360,6 +360,7 @@ function createProgressElements(sessionId) {
 
 document.getElementById('downloadForm').addEventListener('submit', async function(event) {
       event.preventDefault();
+      document.getElementById('submitbutton').style.display='none';
       const url = document.getElementById('videoUrl').value;
       const formatIndex = document.getElementById('formats').value;
 
