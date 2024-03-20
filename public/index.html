@@ -288,14 +288,21 @@ function createProgressElements(sessionId) {
             form.appendChild(status);
         }
 
+        function getWebSocketUrl() {
+  const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+  const hostname = window.location.hostname;
+  const port = window.location.port ? `:${window.location.port}` : '';
+  return `${protocol}${hostname}${port}`;
+}
 
         function initiateDownload(sessionId) {
             console.log("INITIATE DOWNLOAD CALLED!!!");
             createProgressElements(sessionId);
-           
-
+            // get current url
+            const webSocketUrl = getWebSocketUrl();           
+            
             // Open a new WebSocket connection with unique sessionId
-            const downloadWs = new WebSocket(`ws://localhost:3000/${sessionId}`);
+            const downloadWs = new WebSocket(`${webSocketUrl}/${sessionId}`);
 
             downloadWs.onopen = () => {
                 console.log('WebSocket connection for download established.');
