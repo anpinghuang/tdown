@@ -250,6 +250,6 @@ app.use((req, res, next) => {
   });
 
 // Start the server
-server.listen(port, () => {
+server.listen(process.env.PORT || port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });
