@@ -7,7 +7,7 @@
     "start": "node server",
   },
   "keywords": [],
-  "author": "",
+  "author": "polyseptic",
   "license": "ISC",
   "dependencies": {
     "axios": "^1.6.5",
