@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
-   "scripts": {
+  "scripts": {
     "start": "node server",
-    "build": "npm start"
+    "test": "npm start"
   },
   "keywords": [],
   "author": "",
