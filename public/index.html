@@ -326,8 +326,7 @@ function createProgressElements(sessionId) {
                                 progress.style.width = `${data.progress}%`;
                                 document.getElementById(`progressContainer-${sessionId}`).style.display = 'block';
 
-                                status.style.display = "block";
-                                document.getElementById(`status-${sessionId}`).textContent = 'Download.ing...';
+                                document.getElementById(`status-${sessionId}`).textContent = 'Downloading...';
                             if (data.complete) {
                                 document.getElementById(`status-${sessionId}`).textContent = 'FINISHED!!';
                                 //document.getElementById(`status`).textContent = 'Download complete!';
