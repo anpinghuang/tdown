@@ -1,8 +1,1 @@
-fetching it does not hog memory, but splitting into chunks and fetching it to improve speech DOES 
-
-does having a GET request make it faster?
-
-///// 
-
-I found that ratebypass=yes videos download much faster (usually). 
-the videos in the "formats" section instead of "adaptiveformats" included this parameter, so I replaced some videos in adaptive formats with formats.
+after downloading video, if you refresh page, nothing happens. if you download another video, the memory will clear. 

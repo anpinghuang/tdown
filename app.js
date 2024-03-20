@@ -10,6 +10,7 @@ const { format } = require('path');
 
 
 const {getInstruction, getStuff, extractPlayerVersion, extractInstruction, getTimestamp, instructionsAndTimestamp, getVideo, extractURLAndDecodeAge, desig} = require('./video'); 
+//const { filter } = require('cheerio/lib/api/traversing');
 
 // app.use((req, res, next) => {
 //     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
@@ -21,21 +22,25 @@ const {getInstruction, getStuff, extractPlayerVersion, extractInstruction, getTi
 
 async function getVideoFormats(videoUrl) {
     id=extractVideoId(videoUrl);
-    filteredVideoStreams = await getVideo(id);
-    filteredVideoStreams = filteredVideoStreams[0];
-
-  // Return the video streams
-  //console.log("VIDEO STREAMS (from get video formats): ",filteredVideoStreams); //this works
-  return filteredVideoStreams;
+    const formats = await getVideo(id);
+    if (formats) {
+      const {adaptiveFormats,title, thumbnailURL} = await getVideo(id);
+      console.log("GET VIDEO FORMATS thumbnail",thumbnailURL);
+   
+      return {filteredVideoStreams:adaptiveFormats , thumbnail:thumbnailURL, title:title};
+    } else {
+      return null;
+    }
 }
 
 async function downloadVideo(videoUrl, formatIndex) {
     /// get the data available
     const id=extractVideoId(videoUrl);
     //https://www.youtube.com/watch?v=8CubrsO7f6Y
-     videoData = await getVideo(id);
-     videoStreams = videoData[0];
-     title = videoData[1];
+    const {adaptiveFormats,title, thumbnailURL}= await getVideo(id);
+    //  videoStreams = videoData[0];
+    //  title = videoData[1];
+    videoStreams=adaptiveFormats;
     
     //formatIndex is a string so it needs to be converted
     const pickedItag = parseInt(formatIndex, 10);

@@ -2,31 +2,204 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Video Downloader</title>
-    <link href="/output.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Video Downloader - TDOWN</title>
+
+    <meta property="og:type" content="website">
+<meta property="og:title" content="Online Video Downloader - TDOWN">
+<meta property="og:description" content="TDOWN&#039;s Online Video Downloader is a fast and secure software that allows unlimited video downloads from the internet. Our free and user-friendly service ensures a seamless experience!">
+<meta property="og:image" content="
+"> <!-- update-->
+<meta property="twitter:card" content="summary_large_image">  <!-- update-->
+<meta property="twitter:title" content="Convert &amp; Download Youtube Videos for Free - TDOWN">  <!-- update-->
+<meta property="twitter:description" content="TDOWN&#039;s Online Video Downloader is a fast and secure software that allows unlimited video downloads from the internet. Our free and user-friendly service ensures a seamless experience!">  <!-- update-->
+<meta property="twitter:image" content="./assets/twitter.png">  <!-- update-->
+<link rel="apple-touch-icon" href="./assets/apple-touch-icon.png">  <!-- update-->
+<link rel="icon" type="image/png" sizes="32x32" href="./assets/favicon-32x32.png">  <!-- update-->
+<link rel="icon" type="image/png" sizes="16x16" href="./assets/favicon-32x32.png">  <!-- update-->
+<link rel="shortcut icon" href="./assets/favicon.ico"> <!-- update-->
+
+    <link href="tailwind.min.css" rel="stylesheet">
+    <link href="loading.css" rel="stylesheet">
+
+
 </head>
 
 
-<body class="bg-gray-100 flex items-center justify-center h-screen">
-    <div class="w-full max-w-xs">
-        <a href="/"><img class="h-auto max-w-lg rounded-lg" src="tdown.png" alt="image description"></a>
-        <form id="downloadForm" class="max-w-sm mx-auto bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-            <div class="mb-4">
-                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="videoUrl">
-                    Video URL
-                </label>
-                <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="text" id="videoUrl" name="videoUrl" placeholder="Enter video URL" required>
+<body class="bg-white">
+    <div class="container mx-auto p-8">
+        <div class="flex flex-col items-center">
+            <a href="/"><img src="/assets/tdown.png" alt="Logo" class="mx-auto h-auto sm:h-40 md:h-40 lg:h-40 xl:h-50"></a>
+            <h1 class="text-3xl xl:text-5xl md:text-4xl sm:text-4xl font-bold text-center">YouTube Video Downloader</h1>
+        </div>
+        <form id="downloadForm" class="container mx-auto mt-10 max-w-lg p-6 rounded-lg border border-gray-200 shadow-md">
+            <!-- Search Input and Button -->
+            <div id="bigbox" class="flex items-center justify-center mb-8">
+                <input type="text" placeholder="Paste YouTube link" class="w-full sm:w-5/6 lg:w-2/3 px-3 sm:px-4 py-3 text-lg rounded-l-md border border-gray-300 focus:outline-none focus:ring focus:ring-blue-400"  type="text" id="videoUrl" name="videoUrl" placeholder="Enter video URL" required onkeydown="checkEnter(event)">
+                <div class="flex-col sm:flex-row items-center">
+                    <button type="button" class="bg-blue-500 text-white px-6 py-3 text-lg rounded-r-none border border-blue-500 hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-400" id="showFormats">
+                        Download
+                    </button>
+                    <div class="relative">
+                        <select id="formats" style="display: none;" class="block w-full px-4 py-3 text-base text-gray-900 border border-gray-300 rounded-r-md bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"></select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                            
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="m-4">
-                <button type="button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" id="showFormats" >Get Formats</button>
-                <select id="formats" style="display: none;" class="mb-4 block w-full px-4 py-3 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"></select>
-                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" style="display: none;">Download</button>
+            <button type="submit" class="bg-blue-500 text-white px-6 py-3 text-lg rounded-r-md border border-blue-500 hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-400" style="display: none;">Download</button>
+            <div id="error-message" style="color: red;"></div>
+
+
+            <div id="loadingformats"  style="display: none;">
+                    <!-- <svg aria-hidden="true" class="animate-spin inline w-20 h-20 text-gray-200 dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
+                        <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
+                    </svg>
+                    <span class="sr-only">Loading...</span> -->
+                    <div class="hollowLoader">
+                        <div class="largeBox">
+                          <div class="smallBox"></div>
+                        </div>
+                      </div>
             </div>
+            
         </form>
+        <p class="text-center pt-5">By using our service you are accepting our <a style="text-decoration: underline;" rel="nofollow" href="/terms.html">terms of service.</a></p>
     </div>
+
+    <!-- Text and Descriptions -->
+        <div class="text-center max-w-5xl mx-auto p-5">
+            <p class="text-gray-600 mt-8 mb-10">TDOWN is the fastest Youtube Downloader tool that allows you to easily convert and download videos and audio from youtube for free and in the best available quality. TDOWN is the ultimate tool for downloading unlimited youtube videos without any need for registration. You can quickly convert and download hundreds of videos and music files directly from youtube and other social media websites. The most fantastic thing is that it's completely free.</p> <!-- We support all audio and video formats like MP3, MP4, M4V, FLV, WEBM, 3GP, WMV, AVI, etc.;-->
+            <hr>
+
+            <div class="container mx-auto">
+                <div class="flex flex-col md:flex-row">
+                    <div class="md:w-1/2">
+                        <h3 class="font-bold text-xl mb-4">How to Download Youtube videos with TDOWN?</h3>
+                        <div class="features">
+                            <ul class="list-disc ml-6">
+                                <li>Open Youtube and copy the video URL you want to download.</li>
+                                <li>Paste the video URL in the Search box, Tool will fetch video formats.</li>
+                                <li>Select the Video or Audio quality you need and click the "Convert" button</li>
+                                <li>After the conversion is successfully completed, hit the "Download" button.</li>
+                                <li>Once the video is downloaded, you can play it whenever and wherever you want.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="md:w-1/2 mt-8 md:mt-0">
+                        <h3 class="font-bold text-xl mb-4">Why use our Online Youtube Converter?</h3>
+                        <div class="features">
+                            <ul class="list-disc ml-20">
+                                <li>Unlimited Conversions, so you can convert all your videos.</li>
+                                <li>High-Speed encoding to convert your videos faster.</li>
+                                <li>Unlimited Downloads, convert as much as you can.</li>
+                                <li>No Signup required, our service is totally free.</li>
+                                <li>Support Downloading multiple formats, e.g. MP4 and MP3.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+
+            <hr>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-4 mt-10">
+                <div class="bg-gray-100 p-8 flex flex-col justify-center items-center m-5">
+                    <svg class="w-20 h-auto text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.651 7.65a7.131 7.131 0 0 0-12.68 3.15M18.001 4v4h-4m-7.652 8.35a7.13 7.13 0 0 0 12.68-3.15M6 20v-4h4"/>
+                      </svg>
+                      
+                    <h2 class="text-lg font-bold mb-2">Unlimited Conversions</h2>
+                    <p class="text-sm text-gray-600">We offers unlimited conversions of youtube videos to mp3 and mp4.</p>
+                </div>
+                <div class="bg-gray-100 p-8 flex flex-col justify-center items-center m-5">
+                    <svg class="w-20 h-auto text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                        <path fill-rule="evenodd" d="M13 11.15V4a1 1 0 1 0-2 0v7.15L8.78 8.374a1 1 0 1 0-1.56 1.25l4 5a1 1 0 0 0 1.56 0l4-5a1 1 0 1 0-1.56-1.25L13 11.15Z" clip-rule="evenodd"/>
+                        <path fill-rule="evenodd" d="M9.657 15.874 7.358 13H5a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2h-2.358l-2.3 2.874a3 3 0 0 1-4.685 0ZM17 16a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H17Z" clip-rule="evenodd"/>
+                      </svg>
+                      
+                      
+                    <h2 class="text-lg font-bold mb-2">Auto Fetch from Youtube
+                    </h2>
+                    <p class="text-sm text-gray-600">We automatically fetch data from Youtube, you just have to copy and paste the youtube URL.</p>
+                </div>
+                <div class="bg-gray-100 p-8 flex flex-col justify-center items-center m-5">
+                    <svg class="w-20 h-auto text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                        <path fill-rule="evenodd" d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm5.495.93A.5.5 0 0 0 6.5 13c0 1.19.644 2.438 1.618 3.375C9.099 17.319 10.469 18 12 18c1.531 0 2.9-.681 3.882-1.625.974-.937 1.618-2.184 1.618-3.375a.5.5 0 0 0-.995-.07.764.764 0 0 1-.156.096c-.214.106-.554.208-1.006.295-.896.173-2.111.262-3.343.262-1.232 0-2.447-.09-3.343-.262-.452-.087-.792-.19-1.005-.295a.762.762 0 0 1-.157-.096ZM8.99 8a1 1 0 0 0 0 2H9a1 1 0 1 0 0-2h-.01Zm6 0a1 1 0 1 0 0 2H15a1 1 0 1 0 0-2h-.01Z" clip-rule="evenodd"/>
+                      </svg>
+                      
+                    <h2 class="text-lg font-bold mb-2">No Registration Required</h2>
+                    <p class="text-sm text-gray-600">You don't need to register to convert and download youtube videos to mp4 and mp3 format.</p>
+                </div>
+                <div class="bg-gray-100 p-8 flex flex-col justify-center items-center m-5">
+                    <svg class="w-20 h-auto text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8.597 3.2A1 1 0 0 0 7.04 4.289a3.49 3.49 0 0 1 .057 1.795 3.448 3.448 0 0 1-.84 1.575.999.999 0 0 0-.077.094c-.596.817-3.96 5.6-.941 10.762l.03.049a7.73 7.73 0 0 0 2.917 2.602 7.617 7.617 0 0 0 3.772.829 8.06 8.06 0 0 0 3.986-.975 8.185 8.185 0 0 0 3.04-2.864c1.301-2.2 1.184-4.556.588-6.441-.583-1.848-1.68-3.414-2.607-4.102a1 1 0 0 0-1.594.757c-.067 1.431-.363 2.551-.794 3.431-.222-2.407-1.127-4.196-2.224-5.524-1.147-1.39-2.564-2.3-3.323-2.788a8.487 8.487 0 0 1-.432-.287Z"/>
+                      </svg>
+                    <h2 class="text-lg font-bold mb-2">Fast Video Conversion</h2>
+                    <p class="text-sm text-gray-600">We use the latest technologies for encoding system, so you don't have to wait much for the conversion. </p>
+                </div>
+                <div class="bg-gray-100 p-8 flex flex-col justify-center items-center m-5">
+                    <svg class="w-20 h-auto text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 21 21">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6.072 10.072 2 2 6-4m3.586 4.314.9-.9a2 2 0 0 0 0-2.828l-.9-.9a2 2 0 0 1-.586-1.414V5.072a2 2 0 0 0-2-2H13.8a2 2 0 0 1-1.414-.586l-.9-.9a2 2 0 0 0-2.828 0l-.9.9a2 2 0 0 1-1.414.586H5.072a2 2 0 0 0-2 2v1.272a2 2 0 0 1-.586 1.414l-.9.9a2 2 0 0 0 0 2.828l.9.9a2 2 0 0 1 .586 1.414v1.272a2 2 0 0 0 2 2h1.272a2 2 0 0 1 1.414.586l.9.9a2 2 0 0 0 2.828 0l.9-.9a2 2 0 0 1 1.414-.586h1.272a2 2 0 0 0 2-2V13.8a2 2 0 0 1 .586-1.414Z"></path>
+                    </svg>
+                    <h2 class="text-lg font-bold mb-2">Browser Compatibility</h2>
+                    <p class="text-sm text-gray-600">Our web app is fully compatible with the latest browsers like Chrome, Firefox, Safari, Microsoft Edge, etc.</p>
+                </div>
+                <div class="bg-gray-100 p-8 flex flex-col justify-center items-center m-5">
+                    <svg class="w-20 h-auto text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                        <path fill-rule="evenodd" d="M5 4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4Zm12 12V5H7v11h10Zm-5 1a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z" clip-rule="evenodd"/>
+                      </svg>
+                      
+                    <h2 class="text-lg font-bold mb-2">Completely Mobile friendly</h2>
+                    <p class="text-sm text-gray-600">Our site can be used on any device to download your favorite youtube videos to mp4 and mp3.</p>
+                </div>
+                
+                
+                <!-- Repeat the above structure for the remaining boxes -->
+            </div>
+            
+        </div>
+
+        <footer class="bg-white py-8">
+            <div class="container mx-auto flex justify-between">
+                <div class="text-gray-600 text-sm">
+                    <p>© 2024 YouTube Downloader, made with &#x2764; by TDOWN</p>
+                    <ul class="mt-4">
+                        <li>Partners</li>
+                        <li><a target="_blank" href="https://ssyoutube.com/" class="text-blue-500">ssyoutube.com</a></li>
+                        <li><a target="_blank" href="https://onlinevideoconverter.pro/" class="text-blue-500">OnlineVideoConverter</a></li>
+                        <li><a target="_blank" href="https://savefrom.net/" class="text-blue-500">SaveFrom.net</a></li>
+                        <li><a target="_blank" href="https://save-from.net/" class="text-blue-500">Save-From.net</a></li>
+                        <li><a target="_blank" href="https://y2mate.is/" class="text-blue-500">y2mate</a></li>
+                        <li><a target="_blank" href="https://wave.video/convert/youtube-to-mp4-65" class="text-blue-500">Wave.video</a></li>
+                    </ul>
+                </div>
+                <div class="text-gray-600 text-sm">
+                    <ul class="flex">
+                        <li class="mr-4"><a rel="nofollow" href="./terms.html" class="text-blue-500">Terms of Service</a></li>
+                        <li class="mr-4"><a rel="nofollow" href="./privacy.html" class="text-blue-500">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+        </footer>
+        
         
 
     <script>
+
+function checkEnter(event) {
+    if (event.key === "Enter") {
+        event.preventDefault();
+    }
+}
+
+function isYouTubeUrl(url) {
+    return url.indexOf('https://www.youtube.com/watch?v=') === 0;
+}
+
         function formatFileSize(bytes) {
         if (bytes < 1024) {
             return bytes + ' B';
@@ -40,7 +213,14 @@
         }
         document.getElementById('showFormats').addEventListener('click', function() {
     const videoUrl = document.getElementById('videoUrl').value;
+    const loadingAnimation = document.getElementById('loadingformats');
+    loadingAnimation.style.display = 'block';
+
     console.log("VIDEO URL IS ",videoUrl);
+    if (!isYouTubeUrl(videoUrl)) {
+            alert('Please enter a valid YouTube video URL.');
+            return;
+        }
     fetch('/formats', {
         method: 'POST',
         headers: {
@@ -49,119 +229,162 @@
         body: `videoUrl=${encodeURIComponent(videoUrl)}`
     })
     .then(response => response.json())
-    .then(formats => {
-        console.log(formats);
-        const select = document.getElementById('formats');
-        select.style.display = '';
-        select.innerHTML = '';
-        formats.forEach((format, index) => {
-            const option = document.createElement('option');
-            option.value = format.itag;
-            option.textContent = `Quality: ${format.qualityLabel}, ${formatFileSize(format.contentLength)}, ${format.mimeType}`;
-            console.log(option.textContent);
-            select.appendChild(option);
-        });
-        document.querySelector('#downloadForm button[type="submit"]').style.display = '';
-        document.getElementById("videoUrl").style.display = "none";
-        document.getElementById("showFormats").style.display = "none";
+    .then(data => {
+        const errorElement = document.getElementById('error-message');
+        if (data.error) {
+        // Display the error on the page
+        loadingAnimation.style.display = 'none';
+        errorElement.textContent = "Video is Unavailable at this URL";
+        } else {
+            loadingAnimation.style.display = 'none';
+            errorElement.style.display = 'none';
+            const {formats, thumbnail} = data;
+
+            const select = document.getElementById('formats');
+            select.style.display = '';
+            select.innerHTML = '';
+            formats.forEach((format, index) => {
+                const option = document.createElement('option');
+                option.value = format.itag;
+                option.textContent = `Quality: ${format.qualityLabel}, ${formatFileSize(format.contentLength)}, ${format.mimeType}`;
+                console.log(option.textContent);
+                select.appendChild(option);
+            });
+            document.querySelector('#downloadForm button[type="submit"]').style.display = '';
+            document.getElementById("videoUrl").style.display = "none";
+            document.getElementById("showFormats").style.display = "none";
+            
+            // insert image
+            var img = document.createElement('img');
+            img.src = thumbnail;
+            img.margin = '10px';
+            img.classList.add('w-full', 'h-auto', "rounded-lg", "mb-10", "mx-auto");
+            var form = document.getElementById('downloadForm');
+            form.insertBefore(img, form.firstChild);
+        }
     })
     .catch(error => console.error('Error:', error));
 });
 ///////////////////////
 
+function createProgressElements(sessionId) {
+            const form = document.getElementById('downloadForm');
+
+            const progressContainer = document.createElement('div');
+            progressContainer.id = `progressContainer-${sessionId}`;
+            progressContainer.style.display = 'none'; // Hide initially
+            progressContainer.className = 'w-full h-6 bg-gray-200 rounded-full dark:bg-gray-700 mt-5 bb-5';
+
+            const progressBar = document.createElement('div');
+            progressBar.className = 'h-6 bg-blue-600 rounded-full dark:bg-blue-500 text-blue-100 text-lg font-medium text-center p-0.5 leading-3';
+            progressBar.id = `progress-${sessionId}`;
+
+            const status = document.createElement('div');
+            status.id = `status-${sessionId}`;
+
+            progressContainer.appendChild(progressBar);
+
+            form.appendChild(progressContainer);
+            form.appendChild(status);
+        }
+
+
+        function initiateDownload(sessionId) {
+            console.log("INITIATE DOWNLOAD CALLED!!!");
+            createProgressElements(sessionId);
+           
+
+            // Open a new WebSocket connection with unique sessionId
+            const downloadWs = new WebSocket(`ws://localhost:3000/${sessionId}`);
+
+            downloadWs.onopen = () => {
+                console.log('WebSocket connection for download established.');
+            };
+
+            downloadWs.onmessage = (event) => {
+                console.log("DOWNLOADWS FINALLY OPENED");
+                        const data = JSON.parse(event.data);
+                        console.log("SESSION ID FROM INITIATEODWNLOAD IS",sessionId);
+                
+                        if (sessionId === undefined && data.sessionId !== undefined) {
+                            sessionId = data.sessionId;
+                            createProgressElements(sessionId);
+                        }
+
+                        if (sessionId !== undefined && data.sessionId === sessionId) {
+                            if (data.progress !== undefined) {
+                                const progress = document.getElementById(`progress-${sessionId}`);
+                                const status = document.getElementById('status');
+                                progress.textContent = `${data.progress}%`;
+                                progress.style.width = `${data.progress}%`;
+                                document.getElementById(`progressContainer-${sessionId}`).style.display = 'block';
+
+                                status.style.display = "block";
+                                document.getElementById(`status-${sessionId}`).textContent = 'Download.ing...';
+                            if (data.complete) {
+                                document.getElementById(`status-${sessionId}`).textContent = 'FINISHED!!';
+                                //document.getElementById(`status`).textContent = 'Download complete!';
+                                ws.close();
+                            }
+                        }
+                    }
+            };
+
+            downloadWs.onerror = (error) => {
+                console.error('Download WebSocket error:', error);
+            };
+
+            downloadWs.onclose = () => {
+                console.log('Download WebSocket connection closed');
+            };
+
+            // if you put here it will cause error
+           // window.location.href = `/download?url=${encodeURIComponent(url)}&formatIndex=${formatIndex}&sessionId=${sessionId}`;
+        }
+
+
+        function getSessionId(length) {
+        const timestamp = Date.now().toString();
+        const randomString = Math.random().toString(36).substr(2, length);
+        return timestamp + randomString;
+      }
 
 document.getElementById('downloadForm').addEventListener('submit', async function(event) {
       event.preventDefault();
       const url = document.getElementById('videoUrl').value;
       const formatIndex = document.getElementById('formats').value;
-      window.location.href = `/download?url=${encodeURIComponent(url)}&formatIndex=${formatIndex}`;
-    });
 
-// function downloadVideo(videoUrl) {
-//       var videoUrl = document.getElementById('videoUrl').value;
-//       var video = document.createElement('video');
-      
-//       video.src = videoUrl;
-//       video.controls = true;
-//       video.preload = 'metadata'; // Preload metadata to get video duration and size
-      
-//       video.addEventListener('loadedmetadata', function() {
-//         var a = document.createElement('a');
-//         a.href = videoUrl;
-//         a.download = 'video.mp4';
-//         document.body.appendChild(a);
-//         a.click();
-//         document.body.removeChild(a);
-//       });
-      
-//       document.body.appendChild(video);
-//     }
+    try {
+        // Get sessionId from WebSocket connection
+        const id = await getSessionId(10); // 23 characters
+        //console.log("Got sessionId:", id);
+        // Construct download URL with sessionId and navigate
+        await initiateDownload(id);
+        const downloadURL = `/download?url=${encodeURIComponent(url)}&formatIndex=${formatIndex}&sessionId=${id}`;
+        console.log("download URL should be called after initiate");
+        //console.log("Download URL:", downloadURL);
+        // Create a hidden anchor element
+        const iframe = document.createElement('iframe');
 
+        // Hide the iframe
+        iframe.style.display = 'none';
+        iframe.src = downloadURL;
 
-        // document.getElementById('downloadForm').addEventListener('submit', function(event) {
-        //     event.preventDefault();
-        //     const videoUrl = document.getElementById('videoUrl').value;
-        //     const formatIndex = document.getElementById('formats').value;
+        // Append the iframe to the document body
+        document.body.appendChild(iframe);
 
+        // Set the iframe's src attribute to the download URL
+    } catch (error) {
+        console.error('Error establishing WebSocket connection:', error);
+    }
 
-        //     fetch('/download', {
-        //         method: 'POST',
-        //         headers: {
-        //             'Content-Type': 'application/x-www-form-urlencoded',
-        //         },
-        //         body: `videoUrl=${encodeURIComponent(videoUrl)}&formatIndex=${encodeURIComponent(formatIndex)}`
-        //     })
-        //     .then(response => {
-        //         if (!response.ok) {
-        //             throw new Error('Network response was not ok');
-        //         }
-        //         console.log("THIS IS THE RESPONSE!!!!!",response.json());
-        //         return response.json(); // Parse the JSON response
-        //     })
-        //     .then(data => {
-        //         console.log("THIS IS THE ACTTUAL RESPONSE!!",data.downloadUrl);
-        //     })
+    
+});
+ 
 
-
-            //     fetch(data.url, { mode: 'no-cors' })
-            //     .then(response => {
-            //         if (response.ok) {
-            //             return response.blob();
-            //         } else {
-            //             throw new Error('Network response was not ok');
-            //         }
-            //     })
-            //     .then(blob => {
-            //         const urlCreator = window.URL || window.webkitURL;
-            //         const videoUrl = urlCreator.createObjectURL(blob);
-            //         const a = document.createElement('a');
-            //         a.href = videoUrl;
-            //         a.target = '_blank';
-            //         a.download = 'video.mp4';
-            //         document.body.appendChild(a);
-            //         a.click();
-            //         document.body.removeChild(a);
-            //     })
-            //     .catch(error => {
-            //         console.error('Error:', error);
-            //         alert('Failed to download video: ' + error.message);
-            //     });
-            // })
-            // .then(({ blob, filename }) => {
-            //     const url = window.URL.createObjectURL(blob);
-            //     const a = document.createElement('a');
-            //     a.style.display = 'none';
-            //     a.href = url;
-            //     // Use the response header to get the suggested filename
-            //     a.download = filename; // Use the filename from the server
-            //     document.body.appendChild(a);
-            //     a.click();
-            //     window.URL.revokeObjectURL(url);
-            // })
-        //     .catch(error => console.error('Error:', error));
-        // });
     </script>
 
     <!-- Your existing script here -->
+    
 </body>
 </html>

@@ -4,6 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
+    "start": "node server",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -16,12 +17,16 @@
     "content-disposition": "^0.5.4",
     "downloadjs": "^1.4.7",
     "express": "^4.18.2",
+    "got": "^14.2.1",
     "https": "^1.0.0",
+    "js-deobfuscator": "^1.0.20",
+    "node-fetch": "^2.7.0",
     "progress": "^2.0.3",
     "pump": "^3.0.0",
     "puppeteer": "^21.7.0",
     "stream": "^0.0.2",
     "tailwindcss": "^3.4.1",
-    "util": "^0.12.5"
+    "util": "^0.12.5",
+    "uuid": "^9.0.1"
   }
 }
