@@ -238,7 +238,7 @@ function logMemoryUsage() {
 }
 
 // Log memory usage every second
-setInterval(logMemoryUsage, 1000);
+//setInterval(logMemoryUsage, 1000);
 
 app.get('/cleanup', (req, res) => {
     cleanup_video();
