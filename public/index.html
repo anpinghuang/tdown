@@ -302,7 +302,7 @@ function createProgressElements(sessionId) {
     port = '';
   } else {
     // If it doesn't, include the port if it's specified in window.location.port
-    port = ':8080';
+    port = ':80';
   }
 
   return `${protocol}${hostname}${port}`;
