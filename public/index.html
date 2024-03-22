@@ -294,9 +294,20 @@ function createProgressElements(sessionId) {
         function getWebSocketUrl() {
   const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
   const hostname = window.location.hostname;
-  const port = window.location.port ? `:${window.location.port}` : '';
+  let port = '';
+
+  // Check if the hostname includes a port
+  if (hostname.includes(':')) {
+    // If it does, set port to an empty string
+    port = '';
+  } else {
+    // If it doesn't, include the port if it's specified in window.location.port
+    port = window.location.port ? `:${window.location.port}` : '';
+  }
+
   return `${protocol}${hostname}${port}`;
 }
+
 
         function initiateDownload(sessionId) {
             console.log("INITIATE DOWNLOAD CALLED!!!");
