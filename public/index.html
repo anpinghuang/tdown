@@ -6,6 +6,9 @@
     <meta name="description" content="swiftdownloader&#039;s Online Video Downloader is a fast and secure software that allows unlimited video downloads from the internet. Our free and user-friendly service ensures a seamless experience!">
     <title>Online Video Downloader - swiftdownloader</title>
 
+    <meta property="og:image" content="./assets/swiftdownloaderlogosmall.png">
+    <meta property="og:image:width" content="207">
+    <meta property="og:image:height" content="207">
     <meta property="og:type" content="website">
 <meta property="og:title" content="Online Video Downloader - swiftdownloader">
 <meta property="og:description" content="swiftdownloader&#039;s Online Video Downloader is a fast and secure software that allows unlimited video downloads from the internet. Our free and user-friendly service ensures a seamless experience!">
@@ -20,8 +23,14 @@
 <link rel="icon" type="image/png" sizes="16x16" href="./assets/favicon-32x32.png">  <!-- update-->
 <link rel="shortcut icon" href="./assets/favicon.ico"> <!-- update-->
 
-    <link href="tailwind.min.css" rel="stylesheet">
+    <link href="tailwind.critical.min.css" rel="stylesheet">
     <link href="loading.css" rel="stylesheet">
+
+     <!-- Media type (print) doesn't match the current environment, so browser decides it's not that important and loads the stylesheet asynchronously (without delaying page rendering). On load, we change media type so that the stylesheet gets applied to screens. -->
+ <link rel="stylesheet" href="tailwind.min.css" media="print" onload="this.media='all'">
+
+ <!-- Fallback that only gets inserted when JavaScript is disabled, in which case we can't load CSS asynchronously. -->
+ <noscript><link rel="stylesheet" href="tailwind.min.css"></noscript>
 
 
 </head>
@@ -30,7 +39,7 @@
 <body class="bg-white">
     <div class="container mx-auto p-8">
         <div class="flex flex-col items-center">
-            <a href="/"><img src="/assets/swiftdownloader.png" alt="Logo" class="mx-auto h-auto sm:h-40 md:h-40 lg:h-40 xl:h-50"></a>
+            <a href="/"><img src="/assets/swiftdownloader.png" alt="Logo" class="mx-auto w-screen md:w-2/4	 h-auto"></a>
             <h1 class="text-3xl xl:text-5xl md:text-4xl sm:text-4xl font-bold text-center">YouTube Video Downloader</h1>
         </div>
         <form id="downloadForm" class="container mx-auto mt-10 max-w-3xl p-6 rounded-lg border border-gray-200 shadow-md">
