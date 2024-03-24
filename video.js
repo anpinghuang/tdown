@@ -112,61 +112,40 @@ async function getVideo(videoid) {
         const jsonObject = JSON.parse(result);
         const data = jsonObject.streamingData; // all vids
 
+        const videos = data.adaptiveFormats; // normal vids
 
+        let adaptiveFormats = videos.filter(function(item) {
+            return item.mimeType.includes('avc1');
+        });
 
-        /// 1. get adaptive formats for contentlengths. 2. replace adaptive with streamingformats for audio. 3. after replacing, streaming should now have contentlength.
-        // 4. remove all adaptive formats that are not streamingformats because they have no audio
-        let videos;
-        let title;
-        let thumbnails;
-        let thumbnailURL;
-        let adaptiveFormats;
-        try {
-            videos = data.adaptiveFormats; // normal vids
-            adaptiveFormats = videos.filter(function(item) {
-                return item.mimeType.includes('avc1');
-            });
-    
-            let formats = data.formats; // ratebypass=yes vids
-    
-            let replacedQualityLabels = new Set();
-    
-    
-            for (let adaptiveFormat of adaptiveFormats) {
-                for (let formatItem of formats) {
-                    if (adaptiveFormat.qualityLabel === formatItem.qualityLabel) {
-                        Object.assign(adaptiveFormat, formatItem);
-                        replacedQualityLabels.add(formatItem.qualityLabel);
-                    }
+        let formats = data.formats; // ratebypass=yes vids
+
+        for (let adaptiveFormat of adaptiveFormats) {
+            for (let formatItem of formats) {
+                if (adaptiveFormat.qualityLabel === formatItem.qualityLabel) {
+                    Object.assign(adaptiveFormat, formatItem);
                 }
             }
-                    // Remove items that were not replaced
-            adaptiveFormats = adaptiveFormats.filter(adaptiveFormat =>
-                replacedQualityLabels.has(adaptiveFormat.qualityLabel)
-            );
-    
-            
-    
-            title = jsonObject.videoDetails.title;
-    
-            thumbnails = jsonObject.videoDetails.thumbnail.thumbnails;
-    
-            function findThumbnailURL(data, width) {
-                for (let i = 0; i < data.length; i++) {
-                  if (thumbnails[i].width === width) {
-                    return thumbnails[i].url;
-                  }
-                }
-                // Return null if no thumbnail found with the given width
-                return null;
-              }
-              
-              // Usage
-            thumbnailURL = findThumbnailURL(thumbnails, 480);
-        } catch (error) {
-            return null;
         }
+
+        const title = jsonObject.videoDetails.title;
+
+        const thumbnails = jsonObject.videoDetails.thumbnail.thumbnails;
+
+        function findThumbnailURL(data, width) {
+            for (let i = 0; i < data.length; i++) {
+              if (thumbnails[i].width === width) {
+                return thumbnails[i].url;
+              }
+            }
+            // Return null if no thumbnail found with the given width
+            return null;
+          }
           
+          // Usage
+          const thumbnailURL = findThumbnailURL(thumbnails, 480);
+          
+
         return {adaptiveFormats: adaptiveFormats, title: title, thumbnailURL: thumbnailURL};
     } catch (error) {
         console.error(error);
@@ -249,4 +228,6 @@ async function getVideo(videoid) {
         return urlValue + "&sig=" + result;
   }
 
-  module.exports = {getInstruction, getStuff, extractPlayerVersion, extractInstruction, getTimestamp, instructionsAndTimestamp, getVideo, extractURLAndDecodeAge, desig}; // Export the functions
+//   module.exports = {getInstruction, getStuff, extractPlayerVersion, extractInstruction, getTimestamp, instructionsAndTimestamp, getVideo, extractURLAndDecodeAge, desig}; // Export the functions
+
+export {getInstruction, getStuff, extractPlayerVersion, extractInstruction, getTimestamp, instructionsAndTimestamp, getVideo, extractURLAndDecodeAge, desig};

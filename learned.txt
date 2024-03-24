@@ -1,1 +1,18 @@
-after downloading video, if you refresh page, nothing happens. if you download another video, the memory will clear. 
+fetching it does not hog memory, but splitting into chunks and fetching it to improve speech DOES 
+
+does having a GET request make it faster?
+
+
+literally the way I am streaming it right now is too memory intensive. 
+
+///// 
+
+I found that ratebypass=yes videos download much faster (usually). 
+the videos in the "formats" section instead of "adaptiveformats" included this parameter, so I replaced some videos in adaptive formats with formats.
+
+
+//// NEXT UPDATE: make it so that you can download the video without it streaming to you
+
+
+this could be possible solution:
+https://ssyou.tube/convert/

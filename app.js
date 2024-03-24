@@ -1,15 +1,12 @@
-const puppeteer = require('puppeteer');
-const fs = require('fs');
-const axios = require('axios');
-const stream = require('stream');
-const util = require('util');
-const { format } = require('path');
-
+// const axios = require('axios');
+// const stream = require('stream');
+// const util = require('util');
+// const { format } = require('path');
 
 //const { getVideo, instruction } = require('./video');
 
 
-const {getInstruction, getStuff, extractPlayerVersion, extractInstruction, getTimestamp, instructionsAndTimestamp, getVideo, extractURLAndDecodeAge, desig} = require('./video'); 
+import {getInstruction, getStuff, extractPlayerVersion, extractInstruction, getTimestamp, instructionsAndTimestamp, getVideo, extractURLAndDecodeAge, desig} from "./video.js";
 //const { filter } = require('cheerio/lib/api/traversing');
 
 // app.use((req, res, next) => {
@@ -21,16 +18,16 @@ const {getInstruction, getStuff, extractPlayerVersion, extractInstruction, getTi
 
 
 async function getVideoFormats(videoUrl) {
-    id=extractVideoId(videoUrl);
-    const formats = await getVideo(id);
-    if (formats) {
-      const {adaptiveFormats,title, thumbnailURL} = await getVideo(id);
-      console.log("GET VIDEO FORMATS thumbnail",thumbnailURL);
-   
-      return {filteredVideoStreams:adaptiveFormats , thumbnail:thumbnailURL, title:title};
-    } else {
-      return null;
-    }
+    const id=extractVideoId(videoUrl);
+    const {adaptiveFormats,title, thumbnailURL} = await getVideo(id);
+    // filteredVideoStreams = filteredVideoStreams[0];
+    // thumbnail = filteredVideoStreams[2];
+    console.log("GET VIDEO FORMATS thumbnail",thumbnailURL);
+    //console.log("VIDEO STREAMS (from get video formats): ",filteredVideoStreams); //this works
+
+  // Return the video streams
+  //console.log("VIDEO STREAMS (from get video formats): ",filteredVideoStreams); //this works
+  return {filteredVideoStreams:adaptiveFormats , thumbnail:thumbnailURL};
 }
 
 async function downloadVideo(videoUrl, formatIndex) {
@@ -88,4 +85,5 @@ async function downloadVideo(videoUrl, formatIndex) {
   
 
 
-module.exports = {downloadVideo, getVideoFormats}; // Export the functions
+// module.exports = {downloadVideo, getVideoFormats}; // Export the functions
+export {downloadVideo, getVideoFormats, extractVideoId}; // Export the functions

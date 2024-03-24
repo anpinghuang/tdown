@@ -45,6 +45,7 @@
             <h1 class="text-3xl xl:text-5xl md:text-4xl sm:text-4xl font-bold text-center">YouTube Video Downloader</h1>
         </div>
         <form id="downloadForm" class="container mx-auto mt-10 max-w-3xl p-6 rounded-lg border border-gray-200 shadow-md">
+
             <!-- Search Input and Button -->
             <div id="bigbox" class="flex items-center justify-center mb-8">
                 <input type="text" placeholder="Paste YouTube link" class="w-full sm:w-5/6 lg:w-2/3 px-3 sm:px-4 py-4 text-lg rounded-md border-4 border-blue-300 focus:outline-none mr-3" id="videoUrl" name="videoUrl" placeholder="Enter video URL" required onkeydown="checkEnter(event)">
@@ -200,7 +201,6 @@
             </div>
         </footer>
         
-        
 
     <script>
 
@@ -225,6 +225,7 @@ function isYouTubeUrl(url) {
             return (bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
         }
         }
+
         document.getElementById('showFormats').addEventListener('click', function() {
     const videoUrl = document.getElementById('videoUrl').value;
     const loadingAnimation = document.getElementById('loadingformats');
@@ -248,7 +249,7 @@ function isYouTubeUrl(url) {
         if (data.error) {
         // Display the error on the page
         loadingAnimation.style.display = 'none';
-        errorElement.textContent = "Video is Unavailable at this URL";
+        errorElement.textContent = "Video is Unavailable at this URL because its private or restricted";
         } else {
             loadingAnimation.style.display = 'none';
             errorElement.style.display = 'none';
@@ -260,7 +261,7 @@ function isYouTubeUrl(url) {
             formats.forEach((format, index) => {
                 const option = document.createElement('option');
                 option.value = format.itag;
-                option.textContent = `Quality: ${format.qualityLabel}, ${formatFileSize(format.contentLength)}, ${format.mimeType}`;
+                option.textContent = `${format.qualityLabel}, ${formatFileSize(format.contentLength)}`; //, ${format.mimeType}
                 console.log(option.textContent);
                 select.appendChild(option);
             });
@@ -269,11 +270,13 @@ function isYouTubeUrl(url) {
             document.getElementById("showFormats").style.display = "none";
             
             // insert image
-            var img = document.createElement('img');
+           // insert image
+           var img = document.createElement('img');
             img.src = thumbnail;
             img.margin = '10px';
             img.classList.add('w-64', 'h-auto', "rounded-lg", "mb-10", "mx-auto");
             var form = document.getElementById('downloadForm');
+            form.classList.add('flex', 'flex-col', 'lg:flex-row' ,'lg:flex-wrap');
             form.insertBefore(img, form.firstChild);
         }
     })
@@ -281,143 +284,14 @@ function isYouTubeUrl(url) {
 });
 ///////////////////////
 
-function createProgressElements(sessionId) {
-            const form = document.getElementById('downloadForm');
-
-            const progressContainer = document.createElement('div');
-            progressContainer.id = `progressContainer-${sessionId}`;
-            progressContainer.style.display = 'none'; // Hide initially
-            progressContainer.className = 'w-full h-6 bg-gray-200 rounded-full dark:bg-gray-700 mt-5 bb-5';
-
-            const progressBar = document.createElement('div');
-            progressBar.className = 'h-6 bg-blue-600 rounded-full dark:bg-blue-500 text-blue-100 text-lg font-medium text-center p-0.5 leading-3';
-            progressBar.id = `progress-${sessionId}`;
-
-            const status = document.createElement('div');
-            status.id = `status-${sessionId}`;
-
-            progressContainer.appendChild(progressBar);
-
-            form.appendChild(progressContainer);
-            form.appendChild(status);
-        }
-
-        function getWebSocketUrl() {
-  const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
-  const hostname = window.location.hostname;
-  console.log("HOST NAME IS",hostname);
-  let port = '';
-
-  // Check if the hostname includes a port
-  if (hostname == "localhost") {
-    // If it does, set port to an empty string
-    port = ':3000';
-  } else if (protocol == 'wss://') {
-    // If it doesn't, include the port if it's specified in window.location.port
-    port = '';
-  } else {
-    port = '80';
-  }
-
-  console.log(`${protocol}${hostname}${port}`);
-  return `${protocol}${hostname}${port}`;
-}
-
-
-        function initiateDownload(sessionId) {
-            console.log("INITIATE DOWNLOAD CALLED!!!");
-            createProgressElements(sessionId);
-
-            // get current url
-            const webSocketUrl = getWebSocketUrl();           
-            
-            // Open a new WebSocket connection with unique sessionId
-            const downloadWs = new WebSocket(`${webSocketUrl}/${sessionId}`);
-
-            downloadWs.onopen = () => {
-                console.log('WebSocket connection for download established.');
-            };
-
-            downloadWs.onmessage = (event) => {
-                //console.log("DOWNLOADWS FINALLY OPENED");
-                        const data = JSON.parse(event.data);
-                        //console.log("SESSION ID FROM INITIATEODWNLOAD IS",sessionId);
-                
-                        if (sessionId === undefined && data.sessionId !== undefined) {
-                            sessionId = data.sessionId;
-                            createProgressElements(sessionId);
-                        }
-
-                        if (sessionId !== undefined && data.sessionId === sessionId) {
-                            if (data.progress !== undefined) {
-                                const progress = document.getElementById(`progress-${sessionId}`);
-                                const status = document.getElementById('status');
-                                progress.textContent = `${data.progress}%`;
-                                progress.style.width = `${data.progress}%`;
-                                document.getElementById(`progressContainer-${sessionId}`).style.display = 'block';
-
-                                document.getElementById(`status-${sessionId}`).textContent = 'Downloading...';
-                            if (data.complete == true) {
-                                document.getElementById(`status-${sessionId}`).textContent = 'FINISHED!!';
-                                downloadWs.close();
-                            }
-                        }
-                    }
-            };
-
-            downloadWs.onerror = (error) => {
-                console.error('Download WebSocket error:', error);
-            };
-
-            downloadWs.onclose = () => {
-                console.log('Download WebSocket connection closed');
-            };
-
-            // if you put here it will cause error
-           // window.location.href = `/download?url=${encodeURIComponent(url)}&formatIndex=${formatIndex}&sessionId=${sessionId}`;
-        }
-
-
-        function getSessionId(length) {
-        const timestamp = Date.now().toString();
-        const randomString = Math.random().toString(36).substr(2, length);
-        return timestamp + randomString;
-      }
 
 document.getElementById('downloadForm').addEventListener('submit', async function(event) {
       event.preventDefault();
-      document.getElementById('submitbutton').style.display='none';
       const url = document.getElementById('videoUrl').value;
       const formatIndex = document.getElementById('formats').value;
-
-    try {
-        // Get sessionId from WebSocket connection
-        const id = await getSessionId(10); // 23 characters
-        //console.log("Got sessionId:", id);
-        // Construct download URL with sessionId and navigate
-        await initiateDownload(id);
-        const downloadURL = `/download?url=${encodeURIComponent(url)}&formatIndex=${formatIndex}&sessionId=${id}`;
-        console.log("download URL should be called after initiate");
-        //console.log("Download URL:", downloadURL);
-        // Create a hidden anchor element
-        const iframe = document.createElement('iframe');
-
-        // Hide the iframe
-        iframe.style.display = 'none';
-        iframe.src = downloadURL;
-
-        // Append the iframe to the document body
-        document.body.appendChild(iframe);
-
-        // Set the iframe's src attribute to the download URL
-    } catch (error) {
-        console.error('Error establishing WebSocket connection:', error);
-    }
-
-    
-});
- 
-
+      
+      window.location.href = `/download?url=${encodeURIComponent(url)}&formatIndex=${formatIndex}`;
+    });
     </script>
 
     <!-- Your existing script here -->

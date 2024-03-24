@@ -1,256 +1,116 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const {downloadVideo, getVideoFormats} = require('./app'); // Import the downloadVideo function from app.js
+import express from 'express';
 const app = express();
+import cors from 'cors';
+import path from 'path';
+
+import ytdl from 'ytdl-core';
+import {getVideoFormats, extractVideoId} from './app.js'; // Import the downloadVideo function from app.js
+
+import slugify from 'slugify';
+
+const __dirname = path.resolve();
+
+const port = process.env.PORT || 4000;
+app.use(express.static(path.join(__dirname, '/assets')));
+app.use(cors());
 
 
-const axios = require('axios');
-
-const { Transform } = require('stream');
-
-
-const http = require('http');
-const WebSocket = require('ws');
-// Create HTTP server
-const server = http.createServer(app);
-// Create WebSocket server
-const wss = new WebSocket.Server({ server });
-
-
-
-
-
-const downloadSessions = new Map();
-
-// end testing
-
-
-const port = 3000;
-app.use(express.static('public'));
-
+import bodyParser from 'body-parser';
 // Middleware to parse POST data
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-let videoBuffer;
 
-function cleanup_video() {
-    console.log("cleanup_video called");
-    if (videoBuffer) {
-        videoBuffer.fill(0); // Fill the buffer with zeros
-        videoBuffer = null;
-        console.log('Video buffer cleaned up.!!!!!!!!!!!!!!!!!!!!!!!');
-    }
+// end testing
+
+app.use(express.static('public'));
+
+function customHeaders(req, res, next) {
+    app.disable('x-powered-by');
+    res.setHeader('X-Powered-By', 'Video Downloader');
+    next();
 }
+app.use(customHeaders);
 
-// Function to update progress for a specific session
-function updateProgress(sessionId) {
-    const sessionData = downloadSessions.get(sessionId);
-    if (sessionData) {
-        const { fileSize, downloadedBytes, complete } = sessionData;
-        const percentage = Math.floor((downloadedBytes / fileSize) * 100);
+// app.use('/', function(req, res) {
+//     res.status(404).json({
+//         error: 1,
+//         message: 'Data not Found'
+//     });
+// })
 
-        // Iterate over all WebSocket clients to find the one with matching sessionId property
-        wss.clients.forEach(client => {
-            if (client.sessionId == sessionId) { 
-                //console.log("SENDING TO ",client.sessionId);
-                client.send(JSON.stringify({ sessionId, progress: percentage, complete }));
-            }
-        });
-    }
-}
-
-// WebSocket upgrade handling
-app.on('upgrade', (request, socket, head) => {
-    wss.handleUpgrade(request, socket, head, (ws) => {
-        wss.emit('connection', ws, request);
-    });
-});
-
-
-
-// Handle WebSocket connections
-wss.on('connection', (ws, req) => {
-    console.log("THIS IS THE REQ.URL URL: ",req.url.substring(1,11),"type: ",typeof(req.url));
-    ws.sessionId = req.url.substring(1,24);
-});
 
 app.get('/download', async (req, res) => {
-
     const url = req.query.url;
     const formatIndex = req.query.formatIndex;
-    const sessionId = req.query.sessionId; // Generate unique session ID for each download
-    console.log("SESSION ID!!! FROM /DOWNLOAD",sessionId);
-    console.log("URL!!! FROM /DOWNLOAD",url);
-    console.log("FORMAT INDEX!!! FROM /DOWNLOAD",formatIndex);
-
+    const videoId = extractVideoId(url);
     try {
-        const { videoStreamUrl, videoTitle, contentLength } = await downloadVideo(url, formatIndex);
+        // const { videoStreamUrl, videoTitle, contentLength } = await downloadVideo(url, formatIndex);
+        // const encodedFileName = encodeURIComponent(videoTitle);
+        ytdl.getInfo(videoId).then((info) => {
+            const title = slugify(info.videoDetails.title, {
+                replacement: '-',
+                remove: /[*+~.()'"!:@]/g,
+                lower: true,
+                strict: false
+            });
 
-        // Initialize progress data for this session
-        downloadSessions.set(sessionId, {
-            fileSize: contentLength,
-            downloadedBytes: 0,
-            complete: false
+            const format = ytdl.chooseFormat(info.formats,{quality:formatIndex});
+            res.header('Content-Disposition', `attachment; filename="${title}.mp4"`);
+            ytdl.downloadFromInfo(info, { format: format }).pipe(res);
         });
 
-        console.log('Download URL: ', videoStreamUrl); // Log the download URL
-        const encodedFileName = encodeURIComponent(videoTitle);
-
-        if (contentLength > (1 * 1024 * 1024)) { // modifying content length and chunksize increases the speed of download
-
-            // DONWLOAD ALL IN ONE GO
-            console.log('Content size exceeds 10MB, downloading in chunks.');
-
-            const fileSize = contentLength;
-            const chunkSize = 1 * 1024 * 1024; // 2MB chunk size
-            const totalChunks = Math.ceil(fileSize / chunkSize);
-
-            res.setHeader('Content-Description', 'File Transfer');
-            res.setHeader('Content-Type', 'application/octet-stream');
-            res.setHeader('Content-Disposition', `attachment; filename="${encodedFileName}.mp4"`);
-            res.setHeader('Content-Transfer-Encoding', 'binary');
-            res.setHeader('Expires', '0');
-            res.setHeader('Cache-Control', 'must-revalidate');
-            res.setHeader('Pragma', 'public');
-            res.setHeader('Content-Length', fileSize);
-
-
-            // Create a Transform stream to split the incoming stream into chunks
-            const splitter = new Transform({
-                transform(chunk, encoding, callback) {
-                    this.push(chunk);
-                    callback();
-                }
-            });
-
-            splitter.on('error', (err) => {
-                console.error('Error downloading chunk:', err);
-                res.status(500).send('Internal Server Error');
-            });
-
-            // Download chunks in parallel
-            const chunkPromises = [];
-
-            for (let i = 0; i < totalChunks; i++) {
-                const startByte = i * chunkSize;
-                const endByte = Math.min((i + 1) * chunkSize - 1, fileSize - 1);
-
-                const rangeHeaders = {
-                    headers: {
-                        Range: `bytes=${startByte}-${endByte}`,
-                    },
-                    responseType: 'stream',
-                };
-
-                const chunkPromise = axios.get(videoStreamUrl, rangeHeaders)
-                    .then((response) => {
-                        return new Promise((resolve, reject) => {
-                            const chunks = [];
-                            response.data.on('data', (chunk) => {
-                                chunks.push(chunk);
-                                downloadSessions.get(sessionId).downloadedBytes += chunk.length;
-                                //console.log("THIS IS FROM THE /DOWNLOAD sessionid",sessionId);
-                                updateProgress(sessionId);
-                            });
-                            response.data.on('end', () => {
-                                // wss.clients.forEach(client => {
-                                //     client.send(JSON.stringify({ progress: 100, complete: true }));
-                                // });
-                                //updateProgress(sessionId);
-
-                                resolve(Buffer.concat(chunks));
-                            });
-                            response.data.on('error', (err) => {
-                                reject(err);
-                            });
-                        });
-                    });
-
-                chunkPromises.push(chunkPromise);
-            }
-
-            // Wait for all chunks to be downloaded
-            Promise.all(chunkPromises)
-                .then((chunks) => {
-                    // Concatenate all chunks into a single buffer
-                    videoBuffer = Buffer.concat(chunks);
-
-                    // Stream the entire video buffer to the response
-                    res.end(videoBuffer);
-                    downloadSessions.get(sessionId).complete = true;
-
-                })
-                .catch((err) => {
-                    console.error('Error downloading chunks:', err);
-                    res.status(500).send('Internal Server Error');
-                });
-
-        } else {
-        const response = await axios.get(videoStreamUrl, { responseType: 'stream' });
-
-        const fileSize = response.headers['content-length'];
-
-        res.setHeader('Content-Description', 'File Transfer');
-        res.setHeader('Content-Type', 'application/octet-stream');
-        res.setHeader('Content-Disposition', 'attachment; filename="videoplayback.mp4"');
-        res.setHeader('Content-Transfer-Encoding', 'binary');
-        res.setHeader('Expires', '0');
-        res.setHeader('Cache-Control', 'must-revalidate');
-        res.setHeader('Pragma', 'public');
-        res.setHeader('Content-Length', fileSize);
-
-        response.data.pipe(res);
-        }
-
-
     } catch (err) {
-        console.error('Error fetching URL:', err);
-        res.status(500).send('Internal Server Error');
-    } 
+        console.error(err);
+    }
 });
 
 
 
 app.post('/formats', async (req, res) => { 
     const videoUrl = req.body.videoUrl;
-    console.log("VIDEO URL GOT: ",videoUrl); // works 
+    //console.log("VIDEO URL GOT: ",videoUrl); // works 
     try {
-        const {filteredVideoStreams,thumbnail} = await getVideoFormats(videoUrl); 
-        if (filteredVideoStreams) {
-            console.log(thumbnail,"from /formats thumbnail");
-            const data = {
-                formats: filteredVideoStreams,
-                thumbnail: thumbnail
+        // const {filteredVideoStreams,thumbnail} = await getVideoFormats(videoUrl); 
+        // console.log(thumbnail,"from /formats thumbnail");
+
+        const info = await ytdl.getInfo(videoUrl);
+        const videos = info.formats;
+        let filteredVideoStreams = videos.filter(function(item) {
+            return item.mimeType.includes('avc1') && item.contentLength;
+        });
+        
+        // Grouping filtered video streams by qualityLabel
+        const groupedVideos = filteredVideoStreams.reduce((groups, video) => { // filter in only the highest quality videos, no repeats
+            const { qualityLabel } = video;
+            if (!groups[qualityLabel]) {
+                groups[qualityLabel] = [];
             }
-            res.status(200).json(data);
-        } else {
-            res.status(404).json({ error: 'No video formats found' });
+            groups[qualityLabel].push(video);
+            return groups;
+        }, {});
+        
+        // Finding items with maximum contentLength in each group
+        const result = Object.values(groupedVideos).map(group => {
+            return group.reduce((prev, current) =>
+                (parseInt(prev.contentLength) > parseInt(current.contentLength)) ? prev : current
+            );
+        });
+        const thumbnails = info.player_response.videoDetails.thumbnail.thumbnails;
+              
+        const thumbnail = thumbnails[3].url;
+        
+        const data = {
+            formats: result,
+            thumbnail: thumbnail
         }
+        res.status(200).json(data);
     } catch (error) {
         res.status(500).json({ error: error.toString() });
     }
 });
 
-function logMemoryUsage() {
-    const { rss, heapTotal, heapUsed } = process.memoryUsage();
-    console.log(`Memory Usage: RSS ${rss / 1024 / 1024} MB, Heap Total ${heapTotal / 1024 / 1024} MB, Heap Used ${heapUsed / 1024 / 1024} MB`);
-}
-
-// Log memory usage every second
-//setInterval(logMemoryUsage, 1000);
-
-app.get('/cleanup', (req, res) => {
-    cleanup_video();
-    res.send('Cleanup function called successfully.');
-});
-
-/// redirect to 404 page when unavailable. PUT THIS LAST BECAUSE IF YOU PUT IT BEFORE AN ENDPOINT, IT WILL INTERCEPT AND BREAK IT
-app.use((req, res, next) => {
-    res.status(404).sendFile(__dirname + '/public/404.html');
-  });
-
 // Start the server
-server.listen(process.env.PORT || port, () => {
+app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });
