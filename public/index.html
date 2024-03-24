@@ -23,14 +23,16 @@
 <link rel="icon" type="image/png" sizes="16x16" href="./assets/favicon-32x32.png">  <!-- update-->
 <link rel="shortcut icon" href="./assets/favicon.ico"> <!-- update-->
 
-    <link href="tailwind.critical.min.css" rel="stylesheet">
+    <!-- <link href="tailwind.critical.min.css" rel="stylesheet"> -->
+    <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+
     <link href="loading.css" rel="stylesheet">
 
      <!-- Media type (print) doesn't match the current environment, so browser decides it's not that important and loads the stylesheet asynchronously (without delaying page rendering). On load, we change media type so that the stylesheet gets applied to screens. -->
- <link rel="stylesheet" href="tailwind.min.css" media="print" onload="this.media='all'">
+ <!-- <link rel="stylesheet" href="tailwind.min.css" media="print" onload="this.media='all'"> -->
 
  <!-- Fallback that only gets inserted when JavaScript is disabled, in which case we can't load CSS asynchronously. -->
- <noscript><link rel="stylesheet" href="tailwind.min.css"></noscript>
+ <!-- <noscript><link rel="stylesheet" href="tailwind.min.css"></noscript> -->
 
 
 </head>
@@ -39,7 +41,7 @@
 <body class="bg-white">
     <div class="container mx-auto p-8">
         <div class="flex flex-col items-center">
-            <a href="/"><img src="/assets/swiftdownloader.png" alt="Logo" class="mx-auto w-screen md:w-2/4	 h-auto"></a>
+            <a href="/"><img src="/assets/swiftdownloader.png" alt="Logo" class="max-w-screen-md w-full h-auto"></a>
             <h1 class="text-3xl xl:text-5xl md:text-4xl sm:text-4xl font-bold text-center">YouTube Video Downloader</h1>
         </div>
         <form id="downloadForm" class="container mx-auto mt-10 max-w-3xl p-6 rounded-lg border border-gray-200 shadow-md">
