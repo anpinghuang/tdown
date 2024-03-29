@@ -54,10 +54,18 @@ app.get('/download', async (req, res) => {
                 lower: true,
                 strict: false
             });
-
-            const format = ytdl.chooseFormat(info.formats,{quality:formatIndex});
-            res.header('Content-Disposition', `attachment; filename="${title}.mp4"`);
-            ytdl.downloadFromInfo(info, { format: format }).pipe(res);
+            if (formatIndex == 'mp3') {
+                res.header('Content-Disposition', `attachment; filename="${title}.mp3"`);
+                ytdl(url, {
+                    format: 'mp3',
+                    filter: 'audioonly',
+                    quality: 'highest'
+                }).pipe(res);
+            } else {
+                const format = ytdl.chooseFormat(info.formats,{quality:formatIndex});
+                res.header('Content-Disposition', `attachment; filename="${title}.mp4"`);
+                ytdl.downloadFromInfo(info, { format: format }).pipe(res);
+            }
         });
 
     } catch (err) {
@@ -77,7 +85,8 @@ app.post('/formats', async (req, res) => {
         const info = await ytdl.getInfo(videoUrl);
         const videos = info.formats;
         let filteredVideoStreams = videos.filter(function(item) {
-            return item.mimeType.includes('avc1') && item.contentLength;
+            //return item.mimeType.includes('avc1') && item.contentLength;
+            return item.mimeType.includes('video/mp4') && item.hasAudio == true;
         });
         
         // Grouping filtered video streams by qualityLabel
@@ -96,6 +105,7 @@ app.post('/formats', async (req, res) => {
                 (parseInt(prev.contentLength) > parseInt(current.contentLength)) ? prev : current
             );
         });
+        //console.log(result);
         const thumbnails = info.player_response.videoDetails.thumbnail.thumbnails;
               
         const thumbnail = thumbnails[3].url;

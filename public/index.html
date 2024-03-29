@@ -214,15 +214,19 @@ function isYouTubeUrl(url) {
 }
 
         function formatFileSize(bytes) {
-        if (bytes < 1024) {
+            if (bytes) {
+                if (bytes < 1024) {
             return bytes + ' B';
-        } else if (bytes < 1024 * 1024) {
-            return (bytes / 1024).toFixed(2) + ' KB';
-        } else if (bytes < 1024 * 1024 * 1024) {
-            return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
-        } else {
-            return (bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
-        }
+            } else if (bytes < 1024 * 1024) {
+                return (bytes / 1024).toFixed(2) + ' KB';
+            } else if (bytes < 1024 * 1024 * 1024) {
+                return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+            } else {
+                return (bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
+            }
+            } else {
+                return '';
+            }
         }
 
         document.getElementById('showFormats').addEventListener('click', function() {
@@ -260,10 +264,15 @@ function isYouTubeUrl(url) {
             formats.forEach((format, index) => {
                 const option = document.createElement('option');
                 option.value = format.itag;
-                option.textContent = `${format.qualityLabel}, ${formatFileSize(format.contentLength)}`; //, ${format.mimeType}
+                option.textContent = `${format.container.toUpperCase()} ${format.qualityLabel} ${formatFileSize(format.contentLength)}`; //, ${format.mimeType}
                 console.log(option.textContent);
                 select.appendChild(option);
             });
+            const mp3Option = document.createElement('option');
+            mp3Option.value = 'mp3';
+            mp3Option.textContent = 'MP3 Audio';
+            select.appendChild(mp3Option);
+
             document.querySelector('#downloadForm button[type="submit"]').style.display = '';
             document.getElementById("videoUrl").style.display = "none";
             document.getElementById("showFormats").style.display = "none";
