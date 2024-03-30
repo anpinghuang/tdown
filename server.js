@@ -9,7 +9,8 @@ import {getVideoFormats, extractVideoId} from './app.js'; // Import the download
 
 import slugify from 'slugify';
 
-import instagramDl from "@sasmeee/igdl";
+import instagramDl from "@sasmeee/igdl"; // instragram downloader
+
 
 const __dirname = path.resolve();
 
@@ -41,6 +42,8 @@ app.get('/download', async (req, res) => {
     const url = req.query.url;
     const formatIndex = req.query.formatIndex;
     const videoId = extractVideoId(url);
+
+
     try {
         // const { videoStreamUrl, videoTitle, contentLength } = await downloadVideo(url, formatIndex);
         // const encodedFileName = encodeURIComponent(videoTitle);
