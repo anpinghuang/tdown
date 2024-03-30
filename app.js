@@ -66,21 +66,43 @@ async function downloadVideo(videoUrl, formatIndex) {
 
 ////// SMALL FUNCTIONS /// 
 
-  function extractVideoId(url) {
-    try {
-        const urlObj = new URL(url);
-        if (urlObj.hostname === "www.youtube.com" || urlObj.hostname === "youtube.com") {
-            const searchParams = new URLSearchParams(urlObj.search);
-            return searchParams.get('v');
-        } else if (urlObj.hostname === "youtu.be") {
-            return urlObj.pathname.substring(1);
-        } else {
-            throw new Error('Not a valid YouTube URL');
-        }
-    } catch (error) {
-        console.error("extract video id messasge", error.message);
-        return null;
-    }
+//   function extractVideoId(url) {
+//     try {
+//         const urlObj = new URL(url);
+//         if (urlObj.hostname === "www.youtube.com" || urlObj.hostname === "youtube.com") {
+//             const searchParams = new URLSearchParams(urlObj.search);
+//             return searchParams.get('v');
+//         } else if (urlObj.hostname === "youtu.be") {
+//             return urlObj.pathname.substring(1);
+//         } else {
+//             throw new Error('Not a valid YouTube URL');
+//         }
+//     } catch (error) {
+//         console.error("extract video id messasge", error.message);
+//         return null;
+//     }
+// }
+function extractVideoId(url) {
+  try {
+      const urlObj = new URL(url);
+      if (urlObj.hostname === "www.youtube.com" || urlObj.hostname === "youtube.com") {
+          // Check if it's a regular video URL
+          if (urlObj.pathname === "/watch" && urlObj.searchParams.has('v')) {
+              return urlObj.searchParams.get('v');
+          }
+          // Check if it's a YouTube Shorts URL
+          else if (urlObj.pathname.startsWith("/shorts/")) {
+              return urlObj.pathname.substring(urlObj.pathname.lastIndexOf('/') + 1);
+          } else {
+              throw new Error('Not a valid YouTube URL');
+          }
+      } else {
+          throw new Error('Not a valid YouTube URL');
+      }
+  } catch (error) {
+      console.error("extract video id message", error.message);
+      return null;
+  }
 }
   
 

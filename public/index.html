@@ -26,12 +26,8 @@
     <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
 
     <link href="loading.css" rel="stylesheet">
-
-     <!-- Media type (print) doesn't match the current environment, so browser decides it's not that important and loads the stylesheet asynchronously (without delaying page rendering). On load, we change media type so that the stylesheet gets applied to screens. -->
- <!-- <link rel="stylesheet" href="tailwind.min.css" media="print" onload="this.media='all'"> -->
-
- <!-- Fallback that only gets inserted when JavaScript is disabled, in which case we can't load CSS asynchronously. -->
- <!-- <noscript><link rel="stylesheet" href="tailwind.min.css"></noscript> -->
+    <script src="https://kit.fontawesome.com/2b6e1a3e0d.js" crossorigin="anonymous"></script>
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css" rel="stylesheet"/> -->
 
 
 </head>
@@ -50,6 +46,7 @@
                 <input type="text" placeholder="Paste YouTube link" class="w-full sm:w-5/6 lg:w-2/3 px-3 sm:px-4 py-4 text-lg rounded-md border-4 border-blue-300 focus:outline-none mr-3" id="videoUrl" name="videoUrl" placeholder="Enter video URL" required onkeydown="checkEnter(event)">
                 <div class="flex-col sm:flex-row items-center">
                     <button class="button-76 shadow-md hover:shadow-lg transition duration-300 ease-in-out" role="button" type="button" id="showFormats">
+                        <i class="fas fa-download"></i>
                         Download
                     </button>
                     <div class="relative">
@@ -58,7 +55,12 @@
                             
                         </div>
                     </div>
-                    <button id="submitbutton" type="submit" class="mt-6 bg-blue-500 text-white px-6 py-3 text-lg rounded-md border border-blue-500 hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-400" style="display: none;">Download</button>
+                    <button id="submitbutton" type="submit" class="mt-6 bg-red-600 text-white font-bold px-6 py-3 text-lg rounded-md border border-red-600 hover:bg-red-700 focus:outline-none focus:ring focus:ring-red-400" style="display: none;"><i class="fas fa-download"></i> Download</button>
+                    <button id="another" type="button" onclick="refreshPage()" class="mt-6 text-white px-6 py-3 text-lg rounded-md borderfocus:outline-none focus:ring focus:ring-blue-400" style="display: none; background-color: #38bdf8;">Continue</button>                      
+                    <!-- inssert button here-->
+                   
+                    
+                    
                 </div>
             </div>
             <div id="error-message" style="color: red;"></div>
@@ -202,6 +204,9 @@
         
 
     <script>
+        function refreshPage() {
+            window.location.reload();
+        }
 
 function checkEnter(event) {
     if (event.key === "Enter") {
@@ -209,8 +214,16 @@ function checkEnter(event) {
     }
 }
 
-function isYouTubeUrl(url) {
-    return url.indexOf('https://www.youtube.com/watch?v=') === 0;
+function videoType(url) {
+    if (url.indexOf('https://www.youtube.com/watch?v=') === 0) {
+        return 'youtube';
+    } else if (url.indexOf('https://www.youtube.com/shorts') === 0) {
+        return 'youtube-shorts';
+    } else if (url.indexOf('https://www.instagram.com/reels') === 0) {
+        return 'instagram';
+    } else {
+        return 'unknown';
+    }
 }
 
         function formatFileSize(bytes) {
@@ -231,64 +244,140 @@ function isYouTubeUrl(url) {
 
         document.getElementById('showFormats').addEventListener('click', function() {
     const videoUrl = document.getElementById('videoUrl').value;
-    const loadingAnimation = document.getElementById('loadingformats');
-    loadingAnimation.style.display = 'block';
-
-    console.log("VIDEO URL IS ",videoUrl);
-    if (!isYouTubeUrl(videoUrl)) {
-            alert('Please enter a valid YouTube video URL.');
+    if (videoType(videoUrl) == 'unknown') {
+            alert('Please enter a valid video URL.');
             return;
-        }
-    fetch('/formats', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `videoUrl=${encodeURIComponent(videoUrl)}`
-    })
-    .then(response => response.json())
-    .then(data => {
-        const errorElement = document.getElementById('error-message');
-        if (data.error) {
-        // Display the error on the page
-        loadingAnimation.style.display = 'none';
-        errorElement.textContent = "Video is Unavailable at this URL because its private or restricted";
-        } else {
+    } else if (videoType(videoUrl) == 'youtube-shorts' || videoType(videoUrl) == 'youtube') {
+        console.log("Getting formats from YouTube API");
+        const loadingAnimation = document.getElementById('loadingformats');
+        loadingAnimation.style.display = 'block';
+
+        console.log("VIDEO URL IS ",videoUrl);
+        fetch('/formats', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `videoUrl=${encodeURIComponent(videoUrl)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            const errorElement = document.getElementById('error-message');
+            if (data.error) {
+            // Display the error on the page
             loadingAnimation.style.display = 'none';
-            errorElement.style.display = 'none';
-            const {formats, thumbnail} = data;
+            errorElement.textContent = "Video is Unavailable at this URL because its private or restricted";
+            } else {
+                loadingAnimation.style.display = 'none';
+                errorElement.style.display = 'none';
+                const {formats, thumbnail} = data;
 
-            const select = document.getElementById('formats');
-            select.style.display = '';
-            select.innerHTML = '';
-            formats.forEach((format, index) => {
-                const option = document.createElement('option');
-                option.value = format.itag;
-                option.textContent = `${format.container.toUpperCase()} ${format.qualityLabel} ${formatFileSize(format.contentLength)}`; //, ${format.mimeType}
-                console.log(option.textContent);
-                select.appendChild(option);
-            });
-            const mp3Option = document.createElement('option');
-            mp3Option.value = 'mp3';
-            mp3Option.textContent = 'MP3 Audio';
-            select.appendChild(mp3Option);
+                const select = document.getElementById('formats');
+                select.style.display = '';
+                select.innerHTML = '';
+                formats.forEach((format, index) => {
+                    const option = document.createElement('option');
+                    option.value = format.itag;            
 
-            document.querySelector('#downloadForm button[type="submit"]').style.display = '';
+                    option.textContent = `🎬 ${format.container.toUpperCase()} ${format.qualityLabel} ${formatFileSize(format.contentLength)}`; //, ${format.mimeType}
+                    console.log(option.textContent);
+                    select.appendChild(option);
+                });
+                
+                const mp3Option = document.createElement('option');
+                mp3Option.value = 'mp3';
+                mp3Option.textContent = '🎵 MP3 Audio';
+                select.appendChild(mp3Option);
+
+                document.querySelector('#downloadForm button[type="submit"]').style.display = '';
+                document.getElementById('another').style.display = '';
+                document.getElementById("videoUrl").style.display = "none";
+                document.getElementById("showFormats").style.display = "none";
+                
+                // insert image
+            // insert image
+            var img = document.createElement('img');
+                img.src = thumbnail;
+                img.margin = '10px';
+                img.classList.add('w-64', 'h-auto', "rounded-lg", "mb-10", "mx-auto");
+                var form = document.getElementById('downloadForm');
+                form.classList.add('flex', 'flex-col', 'lg:flex-row' ,'lg:flex-wrap');
+                form.insertBefore(img, form.firstChild);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+
+
+
+    } else if (videoType(videoUrl) == 'instagram') {
+        console.log("getting stuf from insta");
+        const loadingAnimation = document.getElementById('loadingformats');
+        loadingAnimation.style.display = 'block';
+
+        console.log("VIDEO URL IS ",videoUrl);
+
+        fetch('/formats', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `videoUrl=${encodeURIComponent(videoUrl)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            const errorElement = document.getElementById('error-message');
+            if (data.error) {
+            // Display the error on the page
+            loadingAnimation.style.display = 'none';
+            errorElement.textContent = "Video is Unavailable at this URL because its private or restricted";
+            } else {
+                loadingAnimation.style.display = 'none';
+                errorElement.style.display = 'none';
+                const {link, thumbnail} = data;
+
+
+                //hide unnecessary stuff
             document.getElementById("videoUrl").style.display = "none";
             document.getElementById("showFormats").style.display = "none";
+            document.getElementById('another').style.display = '';
+
+            var img = document.createElement('img');
+                img.src = thumbnail;
+                img.margin = '10px';
+                img.classList.add('w-64', 'h-auto', "rounded-lg", "mb-2", "mx-auto");
+                var form = document.getElementById('downloadForm');
+                form.classList.add('flex', 'flex-col', 'lg:flex-row' ,'lg:flex-wrap');
+                form.insertBefore(img, form.firstChild);
+
+
             
-            // insert image
-           // insert image
-           var img = document.createElement('img');
-            img.src = thumbnail;
-            img.margin = '10px';
-            img.classList.add('w-64', 'h-auto', "rounded-lg", "mb-10", "mx-auto");
-            var form = document.getElementById('downloadForm');
-            form.classList.add('flex', 'flex-col', 'lg:flex-row' ,'lg:flex-wrap');
-            form.insertBefore(img, form.firstChild);
-        }
-    })
-    .catch(error => console.error('Error:', error));
+                        // Create a button element
+            var newButton = document.createElement("button");
+            // Configure button attributes
+            newButton.textContent = " Download"; // Button text
+            newButton.id = "newButton"; // Button id
+            newButton.type = "button"; // Button type
+            newButton.innerHTML = `<i class="fas fa-download"></i>` + newButton.textContent;
+            newButton.classList.add("font-bold","mt-6", "mr-1","bg-red-600","text-white", "px-6", "py-3" ,"text-lg" ,"rounded-md" ,"border" ,"border-red-600" ,"hover:bg-red-700" ,"focus:outline-none" ,"focus:ring" ,"focus:ring-red-400"); // Button classes
+
+            // Add event listener to the new button
+            newButton.addEventListener("click", function() {
+            console.log("New Button Clicked!");
+            window.location.href = link;
+            // Perform any action you want when the new button is clicked
+            });
+            // Get the parent element to insert the button into
+            var parentElement = document.getElementById("bigbox");
+            // Insert the new button before the last child element (before the select element)
+            parentElement.insertBefore(newButton, parentElement.lastElementChild);
+
+            }
+        })
+        .catch(error => console.error('Error:', error));
+
+    } else {
+        return;
+    }
 });
 ///////////////////////
 
