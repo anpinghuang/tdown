@@ -36,6 +36,25 @@ function customHeaders(req, res, next) {
 }
 app.use(customHeaders);
 
+app.get('/sitemap.xml', async function(req, res, next){
+    let xml_content = [
+      '<?xml version="1.0" encoding="UTF-8"?>',
+      '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+      '  <url>',
+      '    <loc>http://www.swiftdownloader.com/</loc>',
+      '    <lastmod>2024-04-04</lastmod>',
+      '  </url>',
+      '</urlset>'
+    ]
+    res.set('Content-Type', 'text/xml')
+    res.send(xml_content.join('\n'))
+  })
+
+  app.get('/robots.txt', function (req, res) {
+    res.type('text/plain');
+    res.send("User-agent: *\nDisallow: /");
+});
+
 
 
 app.get('/download', async (req, res) => {
@@ -78,7 +97,10 @@ function videoType(url) {
     if (url.indexOf('https://www.youtube.com/watch?v=') === 0) {
         return 'youtube';
     } else if (url.indexOf('https://www.youtube.com/shorts') === 0) {
-        return 'youtube-shorts';
+        return 'youtube-shorts'; 
+    } else if (url.indexOf('https://m.youtube.com') === 0) {
+        return 'youtube-mobile';
+        
     } else if (url.indexOf('https://www.instagram.com/reels') === 0) {
         return 'instagram';
     } else {
@@ -88,7 +110,7 @@ function videoType(url) {
 
 app.post('/formats', async (req, res) => { 
     const videoUrl = req.body.videoUrl;
-    if (videoType(videoUrl) == 'youtube' || videoType(videoUrl) == 'youtube-shorts') {
+    if (videoType(videoUrl) == 'youtube' || videoType(videoUrl) == 'youtube-shorts' || videoType(videoUrl) == 'youtube-mobile') {
         //console.log("VIDEO IS YOUTUBE!!",videoUrl);
         try {
             // const {filteredVideoStreams,thumbnail} = await getVideoFormats(videoUrl); 
