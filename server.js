@@ -25,7 +25,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 
-// end testing
+app.set('view engine', 'ejs'); // npm install ejs
+app.set('views', path.join(__dirname, 'public'));
+
+// // end testing
 
 app.use(express.static('public'));
 
@@ -164,6 +167,10 @@ app.post('/formats', async (req, res) => {
     }
     //console.log("VIDEO URL GOT: ",videoUrl); // works
 });
+
+app.get('*', function(req, res){
+    res.render('404_template');
+  });
 
 // Start the server
 app.listen(port, () => {
