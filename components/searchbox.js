@@ -82,7 +82,7 @@ const SearchBox = () => {
 
   return (
     <div style={{ padding: '20px', maxWidth: "100%", margin: '0 auto', textAlign: 'center' }}>
-    <form onSubmit={handleSubmit} style={{ minWidth: "400px", width: "60vw", marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <form onSubmit={handleSubmit} style={{ minWidth: "330px", width: "60vw", marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
 
   <input
     type="text"
