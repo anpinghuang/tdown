@@ -1,0 +1,45 @@
+/* styles/Navbar.module.css */
+
+.navbar-nav {
+  padding: 10px 0;
+  border: '1px solid #ccc';
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  width: 100%;
+  background-color: #08003a;
+}
+
+.navbar-nav ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar-nav li {
+  display: inline;
+  margin-right: 20px;
+}
+
+.navbar-nav a {
+  color: white;
+  text-decoration: none;
+}
+
+.navbar-nav a:hover {
+  text-decoration: underline;
+}
+.logo {
+  margin-right: 5vw; /* Pushes the logo to the far left */
+  margin-left: 10vw;
+}
+
+.logo img {
+  display: block;
+}
+
+.navLogo {
+  margin-top: 20px;
+  width: 200px;
+  height: auto;
+}

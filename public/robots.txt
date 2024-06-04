@@ -1,7 +1,6 @@
 # Block all crawlers for /api
 User-agent: *
-Disallow: /download
-Disallow: /formats
+Disallow: /api
 
 # Allow all crawlers
 User-agent: *
