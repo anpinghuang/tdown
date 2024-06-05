@@ -94,7 +94,10 @@ const SearchBox = () => {
   <button type="submit" disabled={loading} style={{ padding: '15px 20px', fontSize: '1.2em', borderTopRightRadius: '4px', borderBottomRightRadius: '4px', backgroundColor: loading ? '#ccc' : '#ed093b', color: '#fff', cursor: loading ? 'not-allowed' : 'pointer', border: '1px solid #f77c96', borderLeft: 'none' }}>
     {loading ? 'Loading...' : <span style={{padding: '10px'}}><FontAwesomeIcon icon={faSearch} size="lg" /></span>}
   </button>
+
 </form>
+
+<LoadingSpinner loading={loading} />
 
       {error && <p id="error-message" style={{ color: 'red' }}>{error}</p>}
 

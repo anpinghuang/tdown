@@ -7,9 +7,9 @@ import instagramDl from "@sasmeee/igdl"; // instragram downloader
 
 
 function videoType(url) {
-    if (url.indexOf('https://www.youtube.com/watch?v=') === 0) {
+    if ((url.indexOf('https://www.youtube.com/watch?v=') === 0) || (url.indexOf('https://youtube.com/watch?v=') === 0)) {
         return 'youtube';
-    } else if (url.indexOf('https://www.youtube.com/shorts') === 0) {
+    } else if ((url.indexOf('https://www.youtube.com/shorts') === 0) || (url.indexOf('https://m.youtube.com/shorts') === 0)) {
         return 'youtube-shorts'; 
     } else if (url.indexOf('https://m.youtube.com') === 0) {
         return 'youtube-mobile';
