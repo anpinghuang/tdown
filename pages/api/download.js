@@ -5,6 +5,8 @@ import ytdl from 'ytdl-core';
 import slugify from 'slugify';
 
 
+
+
 function extractVideoId(url) {
   try {
       const urlObj = new URL(url);
@@ -27,38 +29,81 @@ function extractVideoId(url) {
       return null;
   }
 }
-
 export default async function handler(req, res) {
-  const url = req.query.url;
+    const url = req.query.url;
     const formatIndex = req.query.formatIndex;
     const videoId = extractVideoId(url);
-
-
+  
     try {
-        // const { videoStreamUrl, videoTitle, contentLength } = await downloadVideo(url, formatIndex);
-        // const encodedFileName = encodeURIComponent(videoTitle);
-        ytdl.getInfo(videoId).then((info) => {
-            const title = slugify(info.videoDetails.title, {
-                replacement: '-',
-                remove: /[*+~.()'"!:@]/g,
-                lower: true,
-                strict: false
-            });
-            if (formatIndex == 'mp3') {
-                res.setHeader('Content-Disposition', `attachment; filename="${title}.mp3"`);
-                ytdl(url, {
-                    format: 'mp3',
-                    filter: 'audioonly',
-                    quality: 'highest'
-                }).pipe(res);
-            } else {
-                const format = ytdl.chooseFormat(info.formats,{quality:formatIndex});
-                res.setHeader('Content-Disposition', `attachment; filename="${title}.mp4"`);
-                ytdl.downloadFromInfo(info, { format: format }).pipe(res);
-            }
-        });
-
+      const info = await ytdl.getInfo(videoId);
+      const title = slugify(info.videoDetails.title, {
+        replacement: '-',
+        remove: /[*+~.()'"!:@]/g,
+        lower: true,
+        strict: false
+      });
+  
+      let downloadUrl;
+  
+      if (formatIndex == 'mp3') {
+        const format = ytdl.chooseFormat(info.formats, { filter: 'audioonly' });
+        downloadUrl = format.url;
+      } else {
+        const format = ytdl.chooseFormat(info.formats, { quality: formatIndex });
+        downloadUrl = format.url;
+      }
+  
+      // Redirect the user to the download URL
+      res.writeHead(302, {
+        'Location': downloadUrl,
+        'Content-Disposition': `attachment; filename="${title}.${formatIndex === 'mp3' ? 'mp3' : 'mp4'}"`
+      });
+      res.end();
+      
     } catch (err) {
-        console.error(err);
+      console.error(err);
+      res.writeHead(500, { 'Content-Type': 'text/plain' });
+      res.end('cannot redirect');
     }
-}
+  }
+
+
+
+//// actual downloading
+
+
+// export default async function handler(req, res) {
+//     const url = req.query.url;
+//       const formatIndex = req.query.formatIndex;
+//       const videoId = extractVideoId(url);
+  
+  
+//       try {
+//           // const { videoStreamUrl, videoTitle, contentLength } = await downloadVideo(url, formatIndex);
+//           // const encodedFileName = encodeURIComponent(videoTitle);
+//           ytdl.getInfo(videoId).then((info) => {
+//               const title = slugify(info.videoDetails.title, {
+//                   replacement: '-',
+//                   remove: /[*+~.()'"!:@]/g,
+//                   lower: true,
+//                   strict: false
+//               });
+//               console.log(info);
+//               if (formatIndex == 'mp3') {
+//                   res.setHeader('Content-Disposition', `attachment; filename="${title}.mp3"`);
+//                   ytdl(url, {
+//                       format: 'mp3',
+//                       filter: 'audioonly',
+//                       quality: 'highest'
+//                   }).pipe(res);
+//               } else {
+//                   const format = ytdl.chooseFormat(info.formats,{quality:formatIndex});
+//                   res.setHeader('Content-Disposition', `attachment; filename="${title}.mp4"`);
+//                   ytdl.downloadFromInfo(info, { format: format }).pipe(res);
+//               }
+//           });
+  
+//       } catch (err) {
+//           console.error(err);
+//       }
+//   }
