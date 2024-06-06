@@ -47,6 +47,7 @@ const SearchBox = () => {
         setLoading(false);
       } else {
         const { formats, thumbnail } = data;
+        console.log(formats);
         setFormats(formats);
         setThumbnail(thumbnail);
         setLoading(false);

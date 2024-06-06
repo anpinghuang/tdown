@@ -21,6 +21,36 @@ function videoType(url) {
     }
 }
 
+function extractVideoId(url) {
+    try {
+        const urlObj = new URL(url);
+        const validHostnames = ["www.youtube.com", "youtube.com", "m.youtube.com", "youtu.be"];
+
+        if (validHostnames.includes(urlObj.hostname)) {
+            // Check if it's a regular video URL
+            if ((urlObj.pathname === "/watch" || urlObj.pathname === "/watch/") && urlObj.searchParams.has('v')) {
+                return urlObj.searchParams.get('v');
+            }
+            // Check if it's a YouTube Shorts URL
+            else if (urlObj.pathname.startsWith("/shorts/")) {
+                return urlObj.pathname.substring(urlObj.pathname.lastIndexOf('/') + 1);
+            }
+            // Check if it's a shortened youtu.be URL
+            else if (urlObj.hostname === "youtu.be") {
+                return urlObj.pathname.substring(1);
+            } else {
+                throw new Error('Not a valid YouTube URL');
+            }
+        } else {
+            throw new Error('Not a valid YouTube URL');
+        }
+    } catch (error) {
+        console.error("extract video id message", error.message);
+        return null;
+    }
+}
+
+
 export default async function handler(req, res) {
 const videoUrl = req.query.videoUrl;
 console.log(videoUrl, videoType(videoUrl));
@@ -28,7 +58,8 @@ console.log(videoUrl, videoType(videoUrl));
         try {
             // const {filteredVideoStreams,thumbnail} = await getVideoFormats(videoUrl); 
             // console.log(thumbnail,"from /formats thumbnail");
-            const info = await ytdl.getInfo(videoUrl);
+            const id=extractVideoId(videoUrl);
+            const info = await ytdl.getInfo(id);
             
 
             const videos = info.formats;

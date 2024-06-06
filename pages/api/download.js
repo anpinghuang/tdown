@@ -7,17 +7,24 @@ import slugify from 'slugify';
 
 
 
+
 function extractVideoId(url) {
   try {
       const urlObj = new URL(url);
-      if (urlObj.hostname === "www.youtube.com" || urlObj.hostname === "youtube.com") {
+      const validHostnames = ["www.youtube.com", "youtube.com", "m.youtube.com", "youtu.be"];
+
+      if (validHostnames.includes(urlObj.hostname)) {
           // Check if it's a regular video URL
-          if (urlObj.pathname === "/watch" && urlObj.searchParams.has('v')) {
+          if ((urlObj.pathname === "/watch" || urlObj.pathname === "/watch/") && urlObj.searchParams.has('v')) {
               return urlObj.searchParams.get('v');
           }
           // Check if it's a YouTube Shorts URL
           else if (urlObj.pathname.startsWith("/shorts/")) {
               return urlObj.pathname.substring(urlObj.pathname.lastIndexOf('/') + 1);
+          }
+          // Check if it's a shortened youtu.be URL
+          else if (urlObj.hostname === "youtu.be") {
+              return urlObj.pathname.substring(1);
           } else {
               throw new Error('Not a valid YouTube URL');
           }
@@ -29,6 +36,7 @@ function extractVideoId(url) {
       return null;
   }
 }
+
 export default async function handler(req, res) {
     const url = req.query.url;
     const formatIndex = req.query.formatIndex;
