@@ -15,6 +15,24 @@
   padding-bottom: 10vh;
 }
 
+.termscontainer {
+  padding-top: 15vh;
+  justify-content: center;
+  align-items: center;
+
+  display: flex;
+    flex-direction: column;
+  /* background-color: #00076a; */
+
+  /* background: rgb(2,0,36);
+  background: linear-gradient(180deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 15%, rgba(0,212,255,1) 100%); */
+  /*original #4e54c8*/
+  background: white;  
+  width: 100%;
+  padding-bottom: 10vh;
+}
+
+
 /* animation */
 
 
@@ -54,6 +72,22 @@
   color: white;
   width: 70vw;
 }
+
+
+
+.termstitle {
+  margin: 0 0 1rem;
+  line-height: 1.15;
+  font-size: 3rem;
+  color: black;
+}
+
+.termstitle {
+  text-align: center;
+}
+
+
+
 
 .grid {
   display: flex;

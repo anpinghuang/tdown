@@ -173,18 +173,13 @@ export default function Home() {
       `}</style>
     </div>
 
-      <footer className={styles.footeryes}>
-        {/* <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel" className={styles.logo} />
-        </a> */}
-        <p>© 2024 YouTube Keyword Tool, Made with ❤️ by </p>
+    <footer className={styles.footeryes}>
+        <p>© 2024 SwiftDownloader, Made with ❤️ by </p>
         <img src="/swiftdownloader.png" alt="swiftdownloader" style={{height: '2em', width: 'auto'}}></img>
-
+        <ul style={{color: '#fff', listStyle: 'none', display: 'flex', justifyContent:'space-evenly'}}>
+        <Link href='/terms'>Terms and Conditions</Link>
+        <Link style={{marginLeft: '1em'}} href='/privacy'>Privacy Policy</Link>
+        </ul>
       </footer>
 
     </div>
