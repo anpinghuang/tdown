@@ -36,14 +36,14 @@ export default function Home() {
             
       <div style={{justifyContent: 'center', alignItems: 'center',display: 'flex', flexDirection: 'column'}}> 
       <Head>
-        <title>SwiftDownloader: Online Video Downloader - SwiftDownloader.com</title> 
+        <title> Free YouTube to MP4 Video Downloader - SwiftDownloader.com</title> 
         <link rel="icon" href="/favicon.ico" />
-        <meta name="description" content='SwiftDownloader&#039;s Online Video Downloader is a Free and Fast YouTube Downloader that allows you to Convert and Download YouTube videos In HD, 1080p, and up to 4K. Our free and user-friendly service ensures a seamless experience and unlimited downloads' />
+        <meta name="description" content='Experience the best quality video downloads of your favorite YouTube videos in MP4 format for free on SwiftDownloader.com! With our fast and hassle-free download process, you can enjoy watching them anytime, anywhere. Start downloading now and indulge in your beloved YouTube videos in MP4 format.' />
 
         {/* open graph stuff */}
-        <meta property="og:title" content="Free & Online Video Downloader - SwiftDownloader.com" />
+        <meta property="og:title" content="Free YouTube to MP4 Video Downloader - SwiftDownloader.com" />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://swiftdownloader.com" />
+        <meta property="og:url" content="https://swiftdownloader.com/youtube-to-mp4" />
 
         <meta property="og:image" content="https://swiftdownloader.com/bannerforgraphql.png" />
         <meta property="og:image:secure_url" content="https://swiftdownloader.com/bannerforgraphql.png" />
@@ -56,8 +56,7 @@ export default function Home() {
 
       <main className={styles.container}> 
         <h1 className={styles.title}>
-        YouTube Video Downloader</h1>
-        <h2 className={styles.description}>Free & Online YouTube Downloader (1080p, 2K, 4K)</h2>
+        Download YouTube Videos to MP4</h1>
         <SearchBox></SearchBox>
         
       </main>

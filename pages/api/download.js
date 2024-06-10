@@ -54,19 +54,23 @@ export default async function handler(req, res) {
       let downloadUrl;
   
       if (formatIndex == 'mp3') {
-        const format = ytdl.chooseFormat(info.formats, { filter: 'audioonly' });
-        downloadUrl = format.url;
+        res.setHeader('Content-Disposition', `attachment; filename="${title}.mp3"`);
+        ytdl(url, {
+          format: 'mp3',
+          filter: 'audioonly',
+          quality: 'highest'
+      }).pipe(res);
+
       } else {
         const format = ytdl.chooseFormat(info.formats, { quality: formatIndex });
         downloadUrl = format.url;
+                // Redirect the user to the download URL
+        res.writeHead(302, {
+          'Location': downloadUrl,
+          'Content-Disposition': `attachment; filename="${title}.${formatIndex === 'mp3' ? 'mp3' : 'mp4'}"`
+        });
+        res.end();
       }
-  
-      // Redirect the user to the download URL
-      res.writeHead(302, {
-        'Location': downloadUrl,
-        'Content-Disposition': `attachment; filename="${title}.${formatIndex === 'mp3' ? 'mp3' : 'mp4'}"`
-      });
-      res.end();
       
     } catch (err) {
       console.error(err);

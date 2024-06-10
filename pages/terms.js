@@ -6,6 +6,7 @@ import Link from 'next/link';
 
 export default function Terms() {
   return (
+    <div>
     <div style={{justifyContent: 'center', alignItems: 'center', display: 'flex', flexDirection: 'column'}}> 
       <Head>
         <title>SwiftDownloader - Terms of Service</title>
@@ -17,12 +18,12 @@ export default function Terms() {
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://swiftdownloader.com/terms" />
 
-        <meta property="og:image" content="/bannerforgraphql.png" />
-        <meta property="og:image:secure_url" content="/bannerforgraphql.png" />
+        <meta property="og:image" content="https://swiftdownloader.com/bannerforgraphql.png" />
+        <meta property="og:image:secure_url" content="https://swiftdownloader.com/bannerforgraphql.png" />
         <meta property="og:image:width" content="1350" />
         <meta property="og:image:height" content="749" />
         <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:image" content="/bannerforgraphql.png" />
+        <meta property="twitter:image" content="https://swiftdownloader.com/bannerforgraphql.png" />
       </Head>
       <Navbar></Navbar>
 
@@ -168,15 +169,6 @@ To the extent that the website and the information and services on the website a
         </section>
       </main>
 
-      <footer className={styles.footeryes}>
-        <p>© 2024 SwiftDownloader, Made with ❤️ by </p>
-        <img src="/swiftdownloader.png" alt="swiftdownloader" style={{height: '2em', width: 'auto'}}></img>
-        <ul style={{color: '#fff', listStyle: 'none', display: 'flex', justifyContent:'space-evenly'}}>
-        <Link href='/terms'>Terms and Conditions</Link>
-        <Link style={{marginLeft: '1em'}} href='/privacy'>Privacy Policy</Link>
-        </ul>
-      </footer>
-
       <style jsx>{`
         code {
           background: #fafafa;
@@ -217,6 +209,20 @@ To the extent that the website and the information and services on the website a
           box-sizing: border-box;
         }
       `}</style>
+
+
+    </div>
+
+    <footer className={styles.footer}>
+        <div className={styles.footerContent}>
+          <p>© 2024 SwiftDownloader, Made with ❤️</p>
+          <img src="/swiftdownloader.png" alt="swiftdownloader" className={styles.footerLogo} />
+        </div>
+        <ul className={styles.footerLinks}>
+          <li><Link href='/terms' className={styles.footerLink}>Terms and Conditions</Link></li>
+          <li><Link href='/privacy' className={styles.footerLink}>Privacy Policy</Link></li>
+        </ul>
+      </footer>
     </div>
   );
 }
